@@ -581,50 +581,97 @@ exports.myExcel = async (req, res) => {
       res.status(500).json({ error: 'An error occurred while inserting data' });
     }
   };
+  // exports.newCar = async (req, res) => {
+  //   console.log("hi");
+  //   try {
+  //     const excelFile = req.files.excelFile;
+  
+  //     if (!excelFile) {
+  //       return res.status(400).json({ error: 'Excel file not provided' });
+  //     }
+  
+  //     const fileBuffer = excelFile.data;
+  //     const workbook = xlsx.read(fileBuffer, { type: 'buffer' });
+  //     const sheetName = workbook.SheetNames[0];
+  //     const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+  
+  //     const data = [];
+  
+  //     for (const row of sheetData) {
+  //       if (row['Company']) {
+  //         // Ensure the "Company" field is not empty
+  //         const carData = {
+  //           company: row['Company'],
+  //           model: row['Model name'],
+  //           category: row['Specifications'], // Map to "category"
+  //           // subcategory: row['Engine and Transmission'], // Map to "subcategory"
+  //           specifications: {
+  //             // maxEnginePerformance: row['Max Engine Performance'],
+  //             maxMotorPerformance: row['Max Motor Performance'],
+  //             // mileageARAI: row['Mileage(ARAI)'],
+  //           },
+  //         };
+  //         console.log(carData);
+  //         data.push(carData);
+  //       }
+  //     }
+  
+  //     console.log(data);
+  
+  //     // Insert data into the database
+  //     await Car.insertMany(data);
+  
+  //     res.json({ message: 'Data inserted successfully' });
+  //   } catch (error) {
+  //     console.error(error);
+  //     res.status(500).json({ error: 'Internal server error' });
+  //   }
+  // };
   exports.newCar = async (req, res) => {
-    console.log("hi");
-    try {
-      const excelFile = req.files.excelFile;
-  
-      if (!excelFile) {
-        return res.status(400).json({ error: 'Excel file not provided' });
-      }
-  
-      const fileBuffer = excelFile.data;
-      const workbook = xlsx.read(fileBuffer, { type: 'buffer' });
-      const sheetName = workbook.SheetNames[0];
-      const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
-  
-      const data = [];
-  
-      for (const row of sheetData) {
-        if (row['Company']) {
-          // Ensure the "Company" field is not empty
+    console.log("hi2");
+      try {
+        const excelFile = req.files.excelFile;
+      
+            if (!excelFile) {
+              return res.status(400).json({ error: 'Excel file not provided' });
+            }
+        
+            const fileBuffer = excelFile.data;
+            const workbook = xlsx.read(fileBuffer, { type: 'buffer' });
+            const sheetName = workbook.SheetNames[0];
+            const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+        
+            const data = [];
+        
+    
+        for (const row of sheetData) {
           const carData = {
-            company: row['Company'],
-            model: row['Model name'],
-            category: row['Specifications'], // Map to "category"
-            // subcategory: row['Engine and Transmission'], // Map to "subcategory"
-            specifications: {
-              // maxEnginePerformance: row['Max Engine Performance'],
-              maxMotorPerformance: row['Max Motor Performance'],
-              // mileageARAI: row['Mileage(ARAI)'],
+            name: row.name,
+            company:row.company,
+            specification: {
+              engine: row['specification:engine'],
+              engines: {
+                mileage: row['specification:engines:mileage'],
+                maxMotor: row['specification:engines:maxMotor'],
+              },
+              dimension: {
+                length: row['specification:dimension:length'],
+                weight: row['specification:dimension:weight'],
+                height: row['specification:dimension:height'],
+    
+              },
             },
           };
-          console.log(carData);
+    
           data.push(carData);
         }
+    
+        // Insert data into the database
+        await Car.insertMany(data);
+    
+        res.json({ message: 'Data inserted successfully' });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
       }
-  
-      console.log(data);
-  
-      // Insert data into the database
-      await Car.insertMany(data);
-  
-      res.json({ message: 'Data inserted successfully' });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  };
-  
+    };
