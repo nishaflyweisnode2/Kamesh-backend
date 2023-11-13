@@ -3,6 +3,8 @@ const app = express();
 const dotenv = require("dotenv");
 const path = require("path");
 const bodyParser = require("body-parser");
+const serverless = require("serverless-http");
+
 // const cors = require("cors");
 // const cloudinary = require("cloudinary");
 const fileUpload = require('express-fileupload');
@@ -72,3 +74,6 @@ connectDatabase = () => {
   const server = app.listen(process.env.PORT, () => {
       console.log(`Server is working on port ${process.env.PORT}`);
     }); 
+
+    
+module.exports = { handler: serverless(app) };
