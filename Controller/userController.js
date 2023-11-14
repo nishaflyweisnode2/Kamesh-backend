@@ -25,17 +25,21 @@ cloudinary.config({
   exports.registerUser = async (req, res) => {
     try {
         const mobileNumber = req.body.mobileNumber;
+        const name = req.body.name;
+        const email = req.body.email;
+
         const existingUser = await User.findOne({ mobileNumber, role: 'user' });
         if (existingUser) {
           return res.status(400).json({ error: 'User with this mobile number already exists' });
         }
     
         // Generate OTP
-        const otp = otpGenerator.generate(6, { digits: true, alphabets: false, upperCase: false, specialChars: false });
+        // const otp = otpGenerator.generate(6, { digits: true, alphabets: false, upperCase: false, specialChars: false });
+        const otp = randomatic('0', 4); // Generate a new 4-digit OTP
     
         // Save the generated OTP to the user's record in the database
         const user = await User.findOneAndUpdate(
-          { mobileNumber },
+          { mobileNumber ,name,email},
           { otp },
           { new: true, upsert: true }
         );

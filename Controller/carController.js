@@ -7,10 +7,10 @@ const bodyType = require("../Models/bodyTypeModel");
 const Transmission = require("../Models/transmissionModel");
 const fuel = require("../Models/fuelModel");
 const fs = require('fs');
-const imagePattern = "[^\\s]+(.*?)\\.(jpg|jpeg|png|gif|JPG|JPEG|PNG|GIF)$";
-const multer = require("multer");
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const cloudinary = require("cloudinary").v2;
+// const imagePattern = "[^\\s]+(.*?)\\.(jpg|jpeg|png|gif|JPG|JPEG|PNG|GIF)$";
+// const multer = require("multer");
+// const { CloudinaryStorage } = require("multer-storage-cloudinary");
+// const cloudinary = require("cloudinary").v2;
 // const {
 //   Company,
 //   Model,
@@ -21,6 +21,10 @@ const cloudinary = require("cloudinary").v2;
 // const { Company, Model } = require('../Models/excelModel'); 
 // const Company = require('../Models/excelModel'); // Import your Company model
 // const Model = require('../Models/excelModel'); 
+const imagePattern = "[^\\s]+(.*?)\\.(jpg|jpeg|png|gif|JPG|JPEG|PNG|GIF)$";
+const multer = require("multer");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("cloudinary").v2;
 cloudinary.config({ 
   cloud_name: 'dtijhcmaa', 
   api_key: '624644714628939', 
@@ -34,6 +38,7 @@ const storage = new CloudinaryStorage({
   },
 });
 const upload = multer({ storage: storage });
+
 const xlsx = require("xlsx");
 const { log } = require("console");
 exports.createCar= async (req, res) => {
@@ -628,50 +633,142 @@ exports.myExcel = async (req, res) => {
   //   }
   // };
   exports.newCar = async (req, res) => {
-    console.log("hi2");
-      try {
-        const excelFile = req.files.excelFile;
-      
-            if (!excelFile) {
-              return res.status(400).json({ error: 'Excel file not provided' });
-            }
-        
-            const fileBuffer = excelFile.data;
-            const workbook = xlsx.read(fileBuffer, { type: 'buffer' });
-            const sheetName = workbook.SheetNames[0];
-            const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
-        
-            const data = [];
-        
-    
-        for (const row of sheetData) {
-          const carData = {
-            name: row.name,
-            company:row.company,
-            specification: {
-              engine: row['specification:engine'],
-              engines: {
-                mileage: row['specification:engines:mileage'],
-                maxMotor: row['specification:engines:maxMotor'],
-              },
-              dimension: {
-                length: row['specification:dimension:length'],
-                weight: row['specification:dimension:weight'],
-                height: row['specification:dimension:height'],
-    
-              },
-            },
-          };
-    
-          data.push(carData);
-        }
-    
-        // Insert data into the database
-        await Car.insertMany(data);
-    
-        res.json({ message: 'Data inserted successfully' });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Internal server error' });
+    try {
+      const excelFile = req.files.excelFile;
+  
+      if (!excelFile) {
+        return res.status(400).json({ error: 'Excel file not provided' });
       }
-    };
+  
+      const fileBuffer = excelFile.data;
+      const workbook = xlsx.read(fileBuffer, { type: 'buffer' });
+      const sheetName = workbook.SheetNames[0];
+      const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+  
+      const data = [];
+  
+      for (const row of sheetData) {
+        const carData = {
+          name: row.name,
+          company: row.company,
+          specification: {
+            engine: row['specification:engine'],
+            engines: {
+              mileage: row['specification:engines:mileage'],
+              maxMotor: row['specification:engines:maxMotor'],
+            },
+            dimension: {
+              length: row['specification:dimension:length'],
+              weight: row['specification:dimension:weight'],
+              height: row['specification:dimension:height'],
+            },
+          },
+          images: row.images ? row.images.split(',').map(url => url.trim()) : [],
+        };
+  
+        data.push(carData);
+      }
+  
+      // Insert data into the database
+      await Car.insertMany(data);
+  
+      res.json({ message: 'Data inserted successfully' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+  
+    exports.bestSelling = async (req, res) => {
+
+    try {
+      const carId = req.params.carId;
+  
+      // Find the car by ID
+      const car = await Car.findById(carId);
+  
+      if (!car) {
+        return res.status(404).json({ error: 'Car not found' });
+      }
+  
+      // Update the car to mark it as the best-selling car
+      car.isBestSelling = true;
+  
+      // Save the updated car
+      await car.save();
+  
+      res.json({ message: 'Car marked as the best-selling car' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+  exports.getbestSelling = async (req, res) => {
+    try {
+      // Find the best-selling car (assuming only one car can be marked as the best-selling)
+      const bestSellingCar = await Car.find({ isBestSelling: true });
+  
+      if (!bestSellingCar) {
+        return res.status(404).json({ error: 'Best-selling car not found' });
+      }
+  
+      res.json({ bestSellingCar });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+  exports.numofReview = async (req, res) => {
+  try {
+    // Find the car with the highest numOfReviews
+    const mostReviewedCar = await Car.findOne().sort('-numOfReviews').limit(1);
+
+    if (!mostReviewedCar) {
+      return res.status(404).json({ error: 'No cars found' });
+    }
+
+    res.json({ mostReviewedCar });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+exports.upcoming = async (req, res) => {
+  try {
+    const carType = req.body.type;
+console.log(carType);
+    // // Validate that the provided type is a valid enum value
+    // if (!Car.schema.path('type').enumValues.includes(carType)) {
+    //   return res.status(400).json({ error: 'Invalid car type' });
+    // }
+
+    // Find cars with the specified type
+    const carsByType = await Car.find({ type: carType });
+
+    if (!carsByType || carsByType.length === 0) {
+      return res.status(404).json({ error: 'No cars found for the specified type' });
+    }
+
+    res.json({ cars: carsByType });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+exports.justLaunched = async (req, res) => {
+
+try {
+  const newestCar = await Car.find().sort({ createdAt: -1 });
+
+  if (!newestCar) {
+    return res.status(404).json({ message: 'No cars found' });
+  }
+
+  res.json(newestCar);
+} catch (error) {
+  console.error(error);
+  res.status(500).json({ error: 'Internal server error' });
+}
+};
