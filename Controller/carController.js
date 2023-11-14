@@ -73,7 +73,9 @@ try {
     // Retrieve all cars from the database
     const cars = await Car.find();
 
-    res.status(200).json(cars);
+    // res.status(200).json(cars);
+  res.status(200).json({ message: "all car", status: 200, data: cars });
+
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
