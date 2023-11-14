@@ -20,7 +20,9 @@ exports.GetAllNotification = async(req,res) => {
     const { type } = req.params;
     try {
       const notifications = await notify.find({ type });
-      res.json(notifications);
+    //   res.json(notifications);
+  res.status(200).json({ message: "notify", status: 200, data: notifications });
+    
     } catch (error) {
       console.error('Error fetching notifications:', error);
       res.status(500).json({ error: 'An error occurred while fetching notifications' });

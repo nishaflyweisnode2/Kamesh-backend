@@ -726,7 +726,7 @@ exports.myExcel = async (req, res) => {
     if (!mostReviewedCar) {
       return res.status(404).json({ error: 'No cars found' });
     }
-
+   
     res.json({ mostReviewedCar });
   } catch (error) {
     console.error(error);
@@ -736,21 +736,17 @@ exports.myExcel = async (req, res) => {
 
 exports.upcoming = async (req, res) => {
   try {
-    const carType = req.body.type;
-console.log(carType);
-    // // Validate that the provided type is a valid enum value
-    // if (!Car.schema.path('type').enumValues.includes(carType)) {
-    //   return res.status(400).json({ error: 'Invalid car type' });
-    // }
+    const { type } = req.params;
 
-    // Find cars with the specified type
-    const carsByType = await Car.find({ type: carType });
+    // Assuming 'type' is an enum field in your Car model
+    const upcomingCars = await Car.find({ type:"upcoming" });
 
-    if (!carsByType || carsByType.length === 0) {
-      return res.status(404).json({ error: 'No cars found for the specified type' });
+    if (upcomingCars.length === 0) {
+      return res.status(404).json({ message: 'No upcoming cars found' });
     }
+    res.status(200).json({ message: "upcoming", status: 200, data: upcomingCars });
 
-    res.json({ cars: carsByType });
+    // res.json(upcomingCars);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
@@ -766,7 +762,11 @@ try {
     return res.status(404).json({ message: 'No cars found' });
   }
 
-  res.json(newestCar);
+  // res.json(newestCar);
+  res.status(200).json({ message: "just launched", status: 200, data: newestCar });
+
+
+
 } catch (error) {
   console.error(error);
   res.status(500).json({ error: 'Internal server error' });
