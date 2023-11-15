@@ -8,7 +8,14 @@ const VideoBannerSchema = new mongoose.Schema({
 video: {
     type: String
 },
+view: {
+  type: String,
+  default:""
+},like: {
+  type: String,
+  default:""
 
+},
 });
 
 

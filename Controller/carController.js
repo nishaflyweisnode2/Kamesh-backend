@@ -723,13 +723,14 @@ exports.myExcel = async (req, res) => {
   exports.numofReview = async (req, res) => {
   try {
     // Find the car with the highest numOfReviews
-    const mostReviewedCar = await Car.findOne().sort('-numOfReviews').limit(1);
+    const mostReviewedCar = await Car.find().sort('-numOfReviews');
 
     if (!mostReviewedCar) {
       return res.status(404).json({ error: 'No cars found' });
     }
+    res.status(200).json({ message: "top rated", status: 200, data: mostReviewedCar });
    
-    res.json({ mostReviewedCar });
+    // res.json({ mostReviewedCar });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
@@ -754,7 +755,24 @@ exports.upcoming = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+exports.popular = async (req, res) => {
+  try {
+    const { type } = req.params;
 
+    // Assuming 'type' is an enum field in your Car model
+    const upcomingCars = await Car.find({ type:"popular" });
+
+    if (upcomingCars.length === 0) {
+      return res.status(404).json({ message: 'No upcoming cars found' });
+    }
+    res.status(200).json({ message: "popular", status: 200, data: upcomingCars });
+
+    // res.json(upcomingCars);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
 exports.justLaunched = async (req, res) => {
 
 try {
