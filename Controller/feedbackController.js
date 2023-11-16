@@ -19,25 +19,16 @@ const storage = new CloudinaryStorage({
 });
 
 const upload = multer({ storage: storage });
-exports.AddFeedback = async (req, res) => {
+exports.addFeedback = async (req, res) => {
   try {
-    let findFeedback = await Feedback.findOne({ name: req.body.name });
-    console.log(req.body.name)
-    if (findFeedback) {
-      res.status(409).json({ message: "Feedback already exit.", status: 404, data: {} });
-    } else {
-      upload.single("image")(req, res, async (err) => {
-        if (err) { return res.status(400).json({ msg: err.message }); }
-        // console.log(req.file);
-        const fileUrl = req.file ? req.file.path : "";
-        const data = { name: req.body.name, rating: req.body.rating, image: fileUrl };
-        const feedback = await Feedback.create(data);
-        res.status(200).json({ message: "Feedback add successfully.", status: 200, data: feedback });
-      })
-    }
+    const { name,query,email } = req.body;
+    // Create a feedback entry
+    const feedback = await Feedback.create({name,query,email});
 
+    res.status(201).json({ success: true, message: 'Feedback submitted successfully', feedback });
   } catch (error) {
-    res.status(500).json({ status: 500, message: "internal server error ", data: error.message, });
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
 

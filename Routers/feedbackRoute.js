@@ -6,7 +6,7 @@ const router = express();
 // const { isAuthenticatedUser, authorizeRoles } = require("../middleware/auth");
 // const authJwt = require("../middleware/authJwt");
 
-router.post('/',[feedbackControllers.AddFeedback]);
+router.post('/',[feedbackControllers.addFeedback]);
 router.get('/',[  feedbackControllers.getFeedback]);
 router.route("/get/:id").get(feedbackControllers.getfeedbackbyId);
 

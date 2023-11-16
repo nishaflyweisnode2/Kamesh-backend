@@ -162,7 +162,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/kamesh-backend/dev/1700049473252-2023-11-15T11:57:53.252Z/kamesh-backend.zip"
+          "S3Key": "serverless/kamesh-backend/dev/1700138233080-2023-11-16T12:37:13.080Z/kamesh-backend.zip"
         },
         "Handler": "server.handler",
         "Runtime": "nodejs18.x",
@@ -180,14 +180,14 @@
         "AppLogGroup"
       ]
     },
-    "AppLambdaVersionTRJLX00nr7xas3UNIvy45grxO0O0gDduMqyRGDNkE": {
+    "AppLambdaVersionYd1CRtOUi6mviudSWxXkTzRrxvLDVTlw1Lfptli6vDU": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "AppLambdaFunction"
         },
-        "CodeSha256": "AvvhF3nyDcRkb175kLnz6KDWTlPkQKJ8r8Vtla0m+RM="
+        "CodeSha256": "j4LjClDId+r3DLnIcx8vSEf4LOgVrdTtiLJjJHkHpDY="
       }
     },
     "ApiGatewayRestApi": {
@@ -408,7 +408,7 @@
         "AppLambdaPermissionApiGateway"
       ]
     },
-    "ApiGatewayDeployment1700049389745": {
+    "ApiGatewayDeployment1700138152458": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -473,7 +473,7 @@
     "AppLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "AppLambdaVersionTRJLX00nr7xas3UNIvy45grxO0O0gDduMqyRGDNkE"
+        "Ref": "AppLambdaVersionYd1CRtOUi6mviudSWxXkTzRrxvLDVTlw1Lfptli6vDU"
       },
       "Export": {
         "Name": "sls-kamesh-backend-dev-AppLambdaFunctionQualifiedArn"

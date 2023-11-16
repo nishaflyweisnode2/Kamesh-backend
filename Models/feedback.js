@@ -3,14 +3,21 @@ const mongoose = require("mongoose");
 const feedbackSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: [true, "name feedback Required"],
+        // required: [true, "name feedback Required"],
     },
-    image: {
-        type: String
+    // image: {
+    //     type: String
+    // },
+    // rating:{
+    //     type:Number
+    // }
+    query: {
+        type: String,
+      
+    },email: {
+        type: String,
+      
     },
-    rating:{
-        type:Number
-    }
     
 });
 

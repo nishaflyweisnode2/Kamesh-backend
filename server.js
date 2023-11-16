@@ -5,8 +5,8 @@ const path = require("path");
 const bodyParser = require("body-parser");
 const serverless = require("serverless-http");
 
-// const cors = require("cors");
-// const cloudinary = require("cloudinary");
+const cors = require("cors");
+const cloudinary = require("cloudinary");
 const fileUpload = require('express-fileupload');
 
 // app.use(cors());
