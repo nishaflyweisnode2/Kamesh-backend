@@ -7,11 +7,11 @@ const serverless = require("serverless-http");
 
 const cors = require("cors");
 const cloudinary = require("cloudinary");
-const fileUpload = require('express-fileupload');
+// const fileUpload = require('express-fileupload');
 
 // app.use(cors());
 app.use(express.json());
-app.use(fileUpload());
+// app.use(fileUpload());
 app.use(bodyParser.urlencoded({ extended: true}));
 app.get("/",(req,res)=>{
   res.send("Hello world")
@@ -33,6 +33,7 @@ const visitorAgg = require('./Routers/visitorAggRoute');
 const advice = require('./Routers/adviceRoute');
 const feedback = require('./Routers/feedbackRoute');
 const notification = require('./Routers/notificationRoute');
+const bottom = require('./Routers/bottomRoute');
 
 
 
@@ -52,6 +53,7 @@ app.use('/api/v1/visitorAgg', visitorAgg);
 app.use('/api/v1/faq', advice);
 app.use('/api/v1/feedback', feedback);
 app.use('/api/v1/notification', notification);
+app.use('/api/v1/bottom', bottom);
 
 
 

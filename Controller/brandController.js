@@ -21,16 +21,17 @@ const storage = new CloudinaryStorage({
 const upload = multer({ storage: storage });
 
   exports.createBrand= async (req, res) => {
+    console.log("new");
     try {
-        let findBrand = await Brand.findOne({ name: req.body.name });
-        console.log(req.body.name)
+        let findBrand = await Brand.findOne({ name: req.params.name });
+        console.log(req.params.name)
         if (findBrand) {
           res.status(409).json({ message: "Brand already exit.", status: 404, data: {} });
         } else {
           upload.single("image")(req, res, async (err) => {
             if (err) { return res.status(400).json({ msg: err.message }); }
             const fileUrl = req.file ? req.file.path : "";
-            const data = { name: req.body.name, image: fileUrl };
+            const data = { name: req.params.name, image: fileUrl };
             const Brands = await Brand.create(data);
             res.status(200).json({ message: "Brand add successfully.", status: 200, data: Brands });
           })

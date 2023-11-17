@@ -4,7 +4,7 @@ const {
 } = require("../Controller/brandController");
 const router = express.Router();
 
-router.route("/create").post(createBrand);
+router.route("/create/:name").post(createBrand);
 router.route("/get").get(getBrand);
 router.route("/get/:id").get(getBrandbyId);
 router.route("/update/:id").put(updateBrandbyId);
