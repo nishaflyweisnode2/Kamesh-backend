@@ -1,6 +1,29 @@
 const mongoose = require('mongoose');
 
 const carSchema = new mongoose.Schema({
+
+  fuelType: {
+    type: String
+  },
+  bodyType: {
+    type: String
+  },
+  view: {
+    type: String,
+    default:0
+  },
+  description: {
+    type: String,
+    default:"this is description"
+  },
+  like: {
+    type: String,
+    default:0
+  },
+  price: {
+    type: Number,
+    default:0
+  },
   images: [
     {
       type: String, // Assuming the path to the image file

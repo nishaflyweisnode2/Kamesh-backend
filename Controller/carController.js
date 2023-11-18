@@ -653,6 +653,11 @@ exports.myExcel = async (req, res) => {
         const carData = {
           name: row.name,
           company: row.company,
+          fuelType: row.fuelType,
+          bodyType: row.bodyType,
+          price: row.price,
+         
+
           specification: {
             engine: row['specification:engine'],
             engines: {
