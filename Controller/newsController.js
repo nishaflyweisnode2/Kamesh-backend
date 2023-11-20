@@ -31,7 +31,7 @@ const upload = multer({ storage: storage });
           upload.single("image")(req, res, async (err) => {
             if (err) { return res.status(400).json({ msg: err.message }); }
             const fileUrl = req.file ? req.file.path : "";
-            const data = { content: req.body.content, image: fileUrl };
+            const data = { content: req.body.content, title: req.body.title,image: fileUrl };
             const news = await News.create(data);
             res.status(200).json({ message: "News add successfully.", status: 200, data: news });
           })
@@ -54,18 +54,22 @@ try {
     res.status(500).send('Server Error');
   }
 };
-
-exports.getNewsbyId= async (req, res) => {
-
-try {
+exports.getNewsbyId = async (req, res) => {
+  try {
     const newsId = req.params.id;
 
-    // Fetch the brand by its ID from the database
+    // Fetch the news by its ID from the database
     const news = await News.findById(newsId);
 
     if (!news) {
       return res.status(404).json({ message: 'News not found' });
     }
+
+    // Increase the read count by 1
+    news.readCount += 1;
+
+    // Save the updated news with the increased read count
+    await news.save();
 
     res.json({ news });
   } catch (err) {
@@ -108,5 +112,33 @@ try {
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
+  }
+};
+
+exports.getMostReadNews = async (req, res) => {
+  try {
+    // Fetch the most read news articles, limit to 5 for example
+    const mostReadNews = await News.find()
+      .sort({ readCount: -1 }) // Sort in descending order based on readCount
+   
+
+    res.status(200).json({ success: true, mostReadNews });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+exports.getRecentNews = async (req, res) => {
+  try {
+    // Fetch the most recent news articles, limit to 5 for example
+    const recentNews = await News.find()
+      .sort({ createdAt: -1 }) // Sort in descending order based on createdAt
+      .limit(5); // Limit the results to the top 5 most recent news
+
+    res.status(200).json({ success: true, recentNews });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };

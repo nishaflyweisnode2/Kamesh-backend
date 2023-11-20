@@ -1,8 +1,9 @@
 const Brand = require("../Models/brandModel");
 const Car = require("../Models/carModel");
 const Company = require("../Models/companyModel");
-const excel = require("exceljs");
+const CompareHistory= require("../Models/compareHistory");
 
+const excel = require("exceljs");
 const bodyType = require("../Models/bodyTypeModel");
 const Transmission = require("../Models/transmissionModel");
 const fuel = require("../Models/fuelModel");
@@ -267,10 +268,24 @@ const carCount = await Car.countDocuments(filter);
 
 
 
+exports.getMostComparedCars = async (req, res, next) => {
+  try {
+    // Find the most compared pair
+    const mostComparedPair = await CompareHistory.findOne().sort({ count: -1 }).populate('car1 car2');
 
+    if (!mostComparedPair) {
+      return res.status(404).json({ message: 'No comparisons found' });
+    }
 
-
-exports. compareCars = async (req, res, next) => {
+    // Return the most compared pair
+    res.status(200).json({ mostComparedPair });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+exports.compareCars = async (req, res, next) => {
+  console.log("hi1");
   try {
     const { car1Id, car2Id } = req.query;
 
@@ -286,6 +301,9 @@ exports. compareCars = async (req, res, next) => {
       return res.status(404).json({ message: 'Second car not found' });
     }
 
+    // Log the comparison
+    await logComparison(car1._id, car2._id);
+
     // Return details of both cars
     res.status(200).json({ car1, car2 });
   } catch (error) {
@@ -293,6 +311,54 @@ exports. compareCars = async (req, res, next) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+async function logComparison(car1Id, car2Id) {
+  console.log("hi");
+  try {
+    // Find or create a comparison record for the given car pair
+    const comparisonRecord = await CompareHistory.findOneAndUpdate(
+      {
+        car1: car1Id,
+        car2: car2Id,
+      },
+      {
+        $inc: { count: 1 },
+      },
+      { upsert: true, new: true }
+    );
+
+    console.log(`Comparison logged: ${car1Id} vs ${car2Id}`);
+
+    return comparisonRecord;
+  } catch (error) {
+    console.error('Error logging comparison:', error);
+  }
+}
+
+
+// exports. compareCars = async (req, res, next) => {
+//   try {
+//     const { car1Id, car2Id } = req.query;
+
+//     // Retrieve details of the first car
+//     const car1 = await Car.findById(car1Id);
+//     if (!car1) {
+//       return res.status(404).json({ message: 'First car not found' });
+//     }
+
+//     // Retrieve details of the second car
+//     const car2 = await Car.findById(car2Id);
+//     if (!car2) {
+//       return res.status(404).json({ message: 'Second car not found' });
+//     }
+
+//     // Return details of both cars
+//     res.status(200).json({ car1, car2 });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: 'Internal server error' });
+//   }
+// };
 
 
 exports. updateStatus = async (req, res, next) => {

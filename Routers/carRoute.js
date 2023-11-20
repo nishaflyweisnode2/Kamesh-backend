@@ -1,6 +1,6 @@
 const express = require("express");
 const {
- createCar, getCar,getCarbyId,updateCarbyId,bestSelling,upcoming,popular,justLaunched,addImages,numofReview,deleteCarbyId,newCar,getbestSelling,search,categorywiseInsert,categoryInsert,filter,myExcel,allfilter,singleExcel,compareCars,updateStatus,upcomingCars,allDataExcel,createCarbyExcel,uploadthroughExcel
+ createCar, getCar,getMostComparedCars,getCarbyId,updateCarbyId,bestSelling,upcoming,popular,justLaunched,addImages,numofReview,deleteCarbyId,newCar,getbestSelling,search,categorywiseInsert,categoryInsert,filter,myExcel,allfilter,singleExcel,compareCars,updateStatus,upcomingCars,allDataExcel,createCarbyExcel,uploadthroughExcel
 } = require("../Controller/carController");
 const router = express.Router();
 const upload = require("../middleware/fileUpload");
@@ -26,6 +26,9 @@ router.route("/search").get(search);
 router.route("/filter").get(filter);
 router.route("/filter/all").get(allfilter);
 router.route("/compare").get(compareCars);
+router.route("/compare/most").get(getMostComparedCars);
+
+
 router.route("/status/:id").put(updateStatus);
 router.route("/upcoming").get(upcomingCars);
 
