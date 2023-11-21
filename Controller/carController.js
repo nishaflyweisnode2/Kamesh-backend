@@ -863,3 +863,223 @@ try {
   res.status(500).json({ error: 'Internal server error' });
 }
 };
+
+
+
+const xlsx = require('xlsx');
+const Car = require('./path-to-your-Car-model'); // Update the path
+
+exports.newCar = async (req, res) => {
+  try {
+    const excelFile = req.files.excelFile;
+
+    if (!excelFile) {
+      return res.status(400).json({ error: 'Excel file not provided' });
+    }
+
+    const fileBuffer = excelFile.data;
+    const workbook = xlsx.read(fileBuffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+    const data = [];
+    
+    for (const row of sheetData) {
+      const carData = {
+        name: row.name,
+        company: row.company,
+        fuelType: row.fuelType,
+        bodyType: row.bodyType,
+        price: row.price,
+        specification: {
+          engines: {
+            mileage: row['specification:engines:mileage'],
+            maxMotor: row['specification:engines:maxMotor'],
+            fuelType: row['specification:engines:fuelType'],
+            maxPower: row['specification:engines:maxPower'],
+            maxTorque: row['specification:engines:maxTorque'],
+            milege: row['specification:engines:milege'],
+            drivingRange: row['specification:engines:drivingRange'],
+            drivingTrain: row['specification:engines:drivingTrain'],
+            transmission: row['specification:engines:transmission'],
+            emission: row['specification:engines:emission'],
+            turbocharger: row['specification:engines:turbocharger'],
+            electricMotor: row['specification:engines:electricMotor'],
+            Others: row['specification:engines:Others'],
+          },
+          dimension: {
+            length: row['specification:dimension:length'],
+            weight: row['specification:dimension:weight'],
+            height: row['specification:dimension:height'],
+            wheelbase: row['specification:dimension:wheelbase'],
+            groundClearance: row['specification:dimension:groundClearance'],
+          },
+          capacity: {
+            door: row['specification:capacity:door'],
+            seatCapacity: row['specification:capacity:seatCapacity'],
+            row: row['specification:capacity:row'],
+            bootspace: row['specification:capacity:bootspace'],
+            fuelTank: row['specification:capacity:fuelTank'],
+          },
+          tyres: {
+            frontSuspension: row['specification:tyres:frontSuspension'],
+            rearSuspension: row['specification:tyres:rearSuspension'],
+            frontbrakeType: row['specification:tyres:frontbrakeType'],
+            rearBrakeType: row['specification:tyres:rearBrakeType'],
+            steeringType: row['specification:tyres:steeringType'],
+            wheel: row['specification:tyres:wheel'],
+            spareWheel: row['specification:tyres:spareWheel'],
+            frontTyre: row['specification:tyres:frontTyre'],
+            rearTyre: row['specification:tyres:rearTyre'],
+          },
+        },
+        type: row.type,
+        numOfReviews: row.numOfReviews,
+        isBestSelling: row.isBestSelling,
+        images: row.images ? row.images.split(',').map(url => url.trim()) : [],
+        feature: {
+          safety: {
+            overspeed: row['feature:safety:overspeed'],
+            emergencybrakelightflash: row['feature:safety:emergencybrakelightflash'],
+            punctureRepair: row['feature:safety:punctureRepair'],
+            ncap: row['feature:safety:ncap'],
+            blindSpot: row['feature:safety:blindSpot'],
+            dashcam: row['feature:safety:dashcam'],
+            airbag: row['feature:safety:airbag'],
+            rearmiddleseatbelt: row['feature:safety:rearmiddleseatbelt'],
+            tyrePressure: row['feature:safety:tyrePressure'],
+            childSheet: row['feature:safety:childSheet'],
+            seatBelt: row['feature:safety:seatBelt'],
+          },
+          brakingTraction: {
+            antiLockBrackingSystem: row['feature:brakingTraction:antiLockBrackingSystem'],
+            electronicBrakeForceDistribution: row['feature:brakingTraction:electronicBrakeForceDistribution'],
+            brakeassit: row['feature:brakingTraction:brakeassit'],
+            electronicStability: row['feature:brakingTraction:electronicStability'],
+            hillHold: row['feature:brakingTraction:hillHold'],
+            tractionControl: row['feature:brakingTraction:tractionControl'],
+            hillDescent: row['feature:brakingTraction:hillDescent'],
+          },
+          lockSecurity: {
+            engineImmobiliser: row['feature:lockSecurity:engineImmobiliser'],
+            centreLock: row['feature:lockSecurity:centreLock'],
+            speedSensing: row['feature:lockSecurity:speedSensing'],
+            childSafety: row['feature:lockSecurity:childSafety'],
+          },
+          comfortConvenience: {
+            // Placeholder for properties under 'comfortConvenience'
+            umbrellaStorage: row['feature:comfortConvenience:umbrellaStorage'],
+            electronicParking: row['feature:comfortConvenience:electronicParking'],
+            airConditioner: row['feature:comfortConvenience:airConditioner'],
+            frontAc: row['feature:comfortConvenience:frontAc'],
+            rearAc: row['feature:comfortConvenience:rearAc'],
+            thirdRowAc: row['feature:comfortConvenience:thirdRowAc'],
+            heater: row['feature:comfortConvenience:heater'],
+            vantyMirror: row['feature:comfortConvenience:vantyMirror'],
+            cabinBoot: row['feature:comfortConvenience:cabinBoot'],
+            antiGlare: row['feature:comfortConvenience:antiGlare'],
+            parkingAssit: row['feature:comfortConvenience:parkingAssit'],
+            parkingCensor: row['feature:comfortConvenience:parkingCensor'],
+            ruiseControl: row['feature:comfortConvenience:ruiseControl'],
+            headlight: row['feature:comfortConvenience:headlight'],
+            keyless: row['feature:comfortConvenience:keyless'],
+            steering: row['feature:comfortConvenience:steering'],
+            twelvePowerOutlets: row['feature:comfortConvenience:twelvePowerOutlets'],
+          },
+          telematic: {
+            // Placeholder for properties under 'telematic'
+            findCar: row['feature:telematic:findCar'],
+            checkVehicle: row['feature:telematic:checkVehicle'],
+            geoFence: row['feature:telematic:geoFence'],
+            emergencyCall: row['feature:telematic:emergencyCall'],
+            ota: row['feature:telematic:ota'],
+            remoteAc: row['feature:telematic:remoteAc'],
+            remoteCar: row['feature:telematic:remoteCar'],
+            remoteSunroof: row['feature:telematic:remoteSunroof'],
+            carLight: row['feature:telematic:carLight'],
+            alexa: row['feature:telematic:alexa'],
+          },
+          seat: {
+            // Placeholder for properties under 'seat'
+            driver: row['feature:seat:driver'],
+            front: row['feature:seat:front'],
+            rearrow: row['feature:seat:rearrow'],
+            seat: row['feature:seat:seat'],
+            leather: row['feature:seat:leather'],
+            leatherWrapped: row['feature:seat:leatherWrapped'],
+            driverArmrest: row['feature:seat:driverArmrest'],
+            rearPassenger: row['feature:seat:rearPassenger'],
+            vantilated: row['feature:seat:vantilated'],
+            vantilatdSeat: row['feature:seat:vantilatdSeat'],
+            interior: row['feature:seat:interior'],
+            interiorColor: row['feature:seat:interiorColor'],
+            rearArm: row['feature:seat:rearArm'],
+            foldingRear: row['feature:seat:foldingRear'],
+            splitRear: row['feature:seat:splitRear'],
+            frontSeaback: row['feature:seat:frontSeaback'],
+            headrest: row['feature:seat:headrest'],
+          },
+          Storage: {
+            // Placeholder for properties under 'Storage'
+            CupHolders: row['feature:Storage:CupHolders'],
+            DriverArmrestStorage: row['feature:Storage:DriverArmrestStorage'],
+            CooledGloveBox: row['feature:Storage:CooledGloveBox'],
+            SunglassHolder: row['feature:Storage:SunglassHolder'],
+          },
+          door: {
+            // Placeholder for properties under 'door'
+            orvm: row['feature:door:orvm'],
+            scuff: row['feature:door:scuff'],
+            power: row['feature:door:power'],
+            touchup: row['feature:door:touchup'],
+            touchdown: row['feature:door:touchdown'],
+            orvm: row['feature:door:orvm'],
+            indicator: row['feature:door:indicator'],
+            defogger: row['feature:door:defogger'],
+            wiper: row['feature:door:wiper'],
+            doorHandle: row['feature:door:doorHandle'],
+            rainSensing: row['feature:door:rainSensing'],
+            interior: row['feature:door:interior'],
+            pocket: row['feature:door:pocket'],
+            side: row['feature:door:side'],
+            bootlid: row['feature:door:bootlid'],
+          },
+          exterior: {
+            // Placeholder for properties under 'exterior'
+            sunroof: row['feature:exterior:sunroof'],
+            roofmount: row['feature:exterior:roofmount'],
+            bodtcoor: row['feature:exterior:bodtcoor'],
+            bodykit: row['feature:exterior:bodykit'],
+            rubstrip: row['feature:exterior:rubstrip'],
+          },
+          lighting: {
+            // Placeholder for properties under 'lighting'
+            headlight: row['feature:lighting:headlight'],
+            headlamp: row['feature:lighting:headlamp'],
+            tailgit: row['feature:lighting:tailgit'],
+            daytime: row['feature:lighting:daytime'],
+            foglight: row['feature:lighting:foglight'],
+            ambient: row['feature:lighting:ambient'],
+            puddin: row['feature:lighting:puddin'],
+            cabin: row['feature:lighting:cabin'],
+            light: row['feature:lighting:light'],
+            rear: row['feature:lighting:rear'],
+            glove: row['feature:lighting:glove'],
+            headlight: row['feature:lighting:headlight'],
+          },
+          // ... add other feature properties
+        },
+      };
+
+      data.push(carData);
+    }
+
+    // Insert data into the database
+    await Car.insertMany(data);
+
+    res.json({ message: 'Data inserted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
