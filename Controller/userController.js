@@ -56,7 +56,7 @@ cloudinary.config({
 
     exports.loginUser = async (req, res) => {
       try {
-        const { mobileNumber } = req.body;
+        const { mobileNumber,name,email } = req.body;
     
         // Check if the user exists in the database
         let user = await User.findOne({ mobileNumber });

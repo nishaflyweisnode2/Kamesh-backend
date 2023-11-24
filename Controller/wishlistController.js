@@ -90,8 +90,9 @@ exports.removeWishlist = async (req, res) => {
       if (!wishlist) {
         return res.status(404).json({ message: 'Wishlist not found for this user' });
       }
+      res.status(200).json({ message: "wishlist", status: 200, data: wishlist });
   
-      return res.status(200).json({ success: true, wishlist });
+      // return res.status(200).json({ success: true, wishlist });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ success: false, error: 'Internal server error' });

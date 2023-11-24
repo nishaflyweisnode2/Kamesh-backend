@@ -204,7 +204,9 @@ exports.updateCarbyId= async (req, res) => {
         price: { $gte: minPrice, $lte: maxPrice },
       });
   console.log(filteredCars);
-      res.json(filteredCars);
+res.status(200).json({ message: "result", status: 200, data: filteredCars });
+
+      // res.json(filteredCars);
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Internal Server Error' });
@@ -259,7 +261,9 @@ exports.updateCarbyId= async (req, res) => {
     const filteredCars = await Car.find(filter).sort(sortOptions).exec();
 // Count the number of cars in the search
 const carCount = await Car.countDocuments(filter);
-    res.status(200).json({ success: true, data: filteredCars, count: carCount});
+res.status(200).json({ message: "result", status: 200, data: filteredCars , count: carCount});
+
+    // res.status(200).json({ success: true, data: filteredCars, count: carCount});
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, error: 'Internal Server Error' });
@@ -271,14 +275,16 @@ const carCount = await Car.countDocuments(filter);
 exports.getMostComparedCars = async (req, res, next) => {
   try {
     // Find the most compared pair
-    const mostComparedPair = await CompareHistory.findOne().sort({ count: -1 }).populate('car1 car2');
+    const mostComparedPair = await CompareHistory.find().populate('car1 car2');
 
     if (!mostComparedPair) {
       return res.status(404).json({ message: 'No comparisons found' });
     }
 
     // Return the most compared pair
-    res.status(200).json({ mostComparedPair });
+  res.status(200).json({ message: "mostComparedPair", status: 200, data: mostComparedPair });
+    
+    // res.status(200).json({ mostComparedPair });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal server error' });
@@ -700,57 +706,57 @@ exports.myExcel = async (req, res) => {
   //     res.status(500).json({ error: 'Internal server error' });
   //   }
   // };
-  exports.newCar = async (req, res) => {
-    try {
-      const excelFile = req.files.excelFile;
+  // exports.newCar = async (req, res) => {
+  //   try {
+  //     const excelFile = req.files.excelFile;
   
-      if (!excelFile) {
-        return res.status(400).json({ error: 'Excel file not provided' });
-      }
+  //     if (!excelFile) {
+  //       return res.status(400).json({ error: 'Excel file not provided' });
+  //     }
   
-      const fileBuffer = excelFile.data;
-      const workbook = xlsx.read(fileBuffer, { type: 'buffer' });
-      const sheetName = workbook.SheetNames[0];
-      const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+  //     const fileBuffer = excelFile.data;
+  //     const workbook = xlsx.read(fileBuffer, { type: 'buffer' });
+  //     const sheetName = workbook.SheetNames[0];
+  //     const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
   
-      const data = [];
+  //     const data = [];
   
-      for (const row of sheetData) {
-        const carData = {
-          name: row.name,
-          company: row.company,
-          fuelType: row.fuelType,
-          bodyType: row.bodyType,
-          price: row.price,
+  //     for (const row of sheetData) {
+  //       const carData = {
+  //         name: row.name,
+  //         company: row.company,
+  //         fuelType: row.fuelType,
+  //         bodyType: row.bodyType,
+  //         price: row.price,
          
 
-          specification: {
-            engine: row['specification:engine'],
-            engines: {
-              mileage: row['specification:engines:mileage'],
-              maxMotor: row['specification:engines:maxMotor'],
-            },
-            dimension: {
-              length: row['specification:dimension:length'],
-              weight: row['specification:dimension:weight'],
-              height: row['specification:dimension:height'],
-            },
-          },
-          images: row.images ? row.images.split(',').map(url => url.trim()) : [],
-        };
+  //         specification: {
+  //           engine: row['specification:engine'],
+  //           engines: {
+  //             mileage: row['specification:engines:mileage'],
+  //             maxMotor: row['specification:engines:maxMotor'],
+  //           },
+  //           dimension: {
+  //             length: row['specification:dimension:length'],
+  //             weight: row['specification:dimension:weight'],
+  //             height: row['specification:dimension:height'],
+  //           },
+  //         },
+  //         images: row.images ? row.images.split(',').map(url => url.trim()) : [],
+  //       };
   
-        data.push(carData);
-      }
+  //       data.push(carData);
+  //     }
   
-      // Insert data into the database
-      await Car.insertMany(data);
+  //     // Insert data into the database
+  //     await Car.insertMany(data);
   
-      res.json({ message: 'Data inserted successfully' });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  };
+  //     res.json({ message: 'Data inserted successfully' });
+  //   } catch (error) {
+  //     console.error(error);
+  //     res.status(500).json({ error: 'Internal server error' });
+  //   }
+  // };
   
     exports.bestSelling = async (req, res) => {
 
@@ -866,8 +872,6 @@ try {
 
 
 
-const xlsx = require('xlsx');
-const Car = require('./path-to-your-Car-model'); // Update the path
 
 exports.newCar = async (req, res) => {
   try {
