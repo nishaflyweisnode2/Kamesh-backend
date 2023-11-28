@@ -10,7 +10,7 @@ const questionSchema = new mongoose.Schema({
   },
   haveCar: {
     type: String,
-    enum: ['yes', 'no','others']
+    enum: ['yes', 'no',]
   }
   
 });
