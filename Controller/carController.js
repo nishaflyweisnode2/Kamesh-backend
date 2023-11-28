@@ -1087,3 +1087,36 @@ exports.newCar = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+exports.emiCalculator = async (req, res) => {
+  try {
+    const { loanAmount, interestRate, tenure } = req.body;
+
+    // Validate input
+    if (!loanAmount || !interestRate || !tenure) {
+      return res.status(400).json({ error: 'Please provide loanAmount, interestRate, and tenure.' });
+    }
+
+    // Convert interest rate to decimal
+    const monthlyInterestRate = interestRate / (12 * 100);
+
+    // Calculate EMI using the formula
+    const emi = (loanAmount * monthlyInterestRate * Math.pow(1 + monthlyInterestRate, tenure)) /
+      (Math.pow(1 + monthlyInterestRate, tenure) - 1);
+
+    // Calculate total amount, principal amount, and interest amount
+    const totalAmount = emi * tenure;
+    const principalAmount = loanAmount;
+    const interestAmount = totalAmount - principalAmount;
+
+    res.json({
+      emi,
+      totalAmount,
+      principalAmount,
+      interestAmount,
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
