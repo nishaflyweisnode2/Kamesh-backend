@@ -49,7 +49,7 @@ const sellSchema = new mongoose.Schema({
   },
   mobile: {
     type: String,
-    required: [true, "name Sell Required"],
+    required: [true, "  Required"],
   },
 });
 
