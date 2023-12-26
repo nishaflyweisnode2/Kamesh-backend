@@ -7,11 +7,11 @@ const serverless = require("serverless-http");
 
 const cors = require("cors");
 const cloudinary = require("cloudinary");
-// const fileUpload = require('express-fileupload');
+const fileUpload = require('express-fileupload');
 
 // app.use(cors());
 app.use(express.json());
-// app.use(fileUpload());
+app.use(fileUpload());
 app.use(bodyParser.urlencoded({ extended: true}));
 app.get("/",(req,res)=>{
   res.send("Hello world")

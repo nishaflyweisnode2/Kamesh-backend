@@ -895,6 +895,10 @@ exports.newCar = async (req, res) => {
         fuelType: row.fuelType,
         bodyType: row.bodyType,
         price: row.price,
+        Display_name: row.Display_name,
+        ModelId: row.ModelId,
+        Make: row.Make,
+
         specification: {
           engines: {
             mileage: row['specification:engines:mileage'],
@@ -1081,7 +1085,49 @@ exports.newCar = async (req, res) => {
     // Insert data into the database
     await Car.insertMany(data);
 
-    res.json({ message: 'Data inserted successfully' });
+    res.json({ message: 'Data inserted successfully',data });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+exports.newCheck = async (req, res) => {
+  try {
+    const excelFile = req.files.excelFile;
+
+    if (!excelFile) {
+      return res.status(400).json({ error: 'Excel file not provided' });
+    }
+
+    const fileBuffer = excelFile.data;
+    const workbook = xlsx.read(fileBuffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+    const data = [];
+
+    for (const row of sheetData) {
+      const carData = {
+        name: row.name,
+        company: row.company,
+        fuelType: row.fuelType,
+        bodyType: row.bodyType,
+        price: row.price,
+        Display_name: row.Display_name,
+        ModelId: row.ModelId,
+        Make: row.Make,
+        Car_link:row.Car_link,
+        car_images: row.car_images.split('|').map(link => ({ url: link.trim() })),
+        // ... add other feature properties
+      };
+
+      data.push(carData);
+    }
+
+    // Insert data into the database
+    await Car.insertMany(data);
+
+    res.json({ message: 'Data inserted successfully', data });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
