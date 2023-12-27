@@ -651,7 +651,6 @@ const carSchema = new mongoose.Schema(
     },
     State: {
       type: String,
-      // required: true,
     },
     Location: {
       type: String,
@@ -761,10 +760,17 @@ const carSchema = new mongoose.Schema(
       type: String,
       // required: true,
     },
-    car_images: {
-      type: String,
+    // car_images: {
+    //   type: String,
       // required: true,
-    },
+    // },
+    car_images: [{
+      url: String,
+    }],
+    review_text: [{
+      username: { type: String, default: null },
+      review: { type: String, default: null },
+    }],
     brochure_link: {
       type: String,
       // required: true,
@@ -773,10 +779,7 @@ const carSchema = new mongoose.Schema(
       type: String,
       // required: true,
     },
-    review_text: {
-      type: String,
-      // required: true,
-    },
+   
     video_link: {
       type: String,
       // required: true,
@@ -1165,7 +1168,319 @@ const carSchema = new mongoose.Schema(
       type: String,
       // required: true,
     },
-    // Remote AC: On / Off via App	Remote Car Lock/Unlock via App	Car Light Flashing & Honking via App	Driver Seat Adjustment	Front Passenger Seat Adjustment	Seat Upholstery	Leather-wrapped Steering Wheel	Rear Passenger Seat Type	Interiors	Interior Colours	Rear Armrest	Folding Rear Seat	Split Rear Seat	Front Seatback Pockets	Headrests	Cup Holders	Cooled Glovebox	ORVM Colour	Scuff Plates	Power Windows	One Touch Down	One Touch Up	Adjustable ORVMs	Turn Indicators on ORVMs	Rear Defogger	Rear Wiper	Exterior Door Handles	Rain-sensing Wipers	Interior Door Handles	Door Pockets	Bootlid Opener	Roof-mounted Antenna	Body-coloured Bumpers	Body Kit	Rub-strips	Headlights	Automatic Headlamps	Follow Me Home Headlamps	Taillights	Daytime Running Lights	Fog Lights	Puddle Lamps	Cabin Lamps	Headlight Height Adjuster	Instantaneous Consumption	Instrument Cluster	Trip Meter	Average Fuel Consumption	Average Speed	Distance to Empty	Clock	Low Fuel Level Warning	Door Ajar Warning	Adjustable Cluster Brightness	Gear Indicator	Shift Indicator	Tachometer	Smart Connectivity	Display	Touchscreen Size	Integrated (in-dash) Music System	Speakers	Steering-mounted controls	Voice Command	GPS Navigation System	Bluetooth Compatibility	AUX Compatibility	AM/FM Radio	USB Compatibility	Head Unit Size	iPod Compatibility	Battery Warranty (In Years)	Battery Warranty (In Kilometres)	Warranty (In Years)	Warranty (In Kilometres)	MCD	5 Years Extended Warranty	Emergency Brake Light Flashing	Child Seat Anchor Points	Hill Descent Control	Rear AC	Emergency Call	Rear Row Seat Adjustment	Leather-wrapped Gear Knob	Driver Armrest	Ambient Interior Lighting	Wireless Charger	Lane Departure Warning	Forward Collision Warning (FCW)	Automatic Emergency Braking (AEB)	High-beam Assist	Blind Spot Detection	Lane Departure Prevention	Rear Middle Head Rest	Four-Wheel-Drive	Limited Slip Differential (LSD)	Umbrella Storage in Door	Electronic Parking Brake	Over The Air (OTA) Updates	Remote Sunroof: Open / Close via App	Alexa Compatibility	Massage Seats	Split Third Row Seat	Driver Armrest Storage	Sunglass Holder	Sunroof / Moonroof	Chrome Finish Exhaust Pipe	Ambient Interior Count	Cornering Headlights	Light on Vanity Mirrors	Rear Reading Lamp	Glovebox Lamp	Heads Up Display (HUD)	Display Screen for Rear Passengers	Internal Hard Drive	Tax Collected at Source (TCS)	Rear Cross-traffic Assist	Differential Lock	Ventilated Seats	Ventilated Seat Type	Heated/Cooled Cup Holders	Third Row AC Zone	Third Row Seat Adjustment	Third Row Seat Type	Third Row Cup Holders	Side Window Blinds	Rear Windshield Blind	DVD Playback
+    RemoteAC: {
+      type: String,
+      // required: true,
+    },
+    CarLock: {
+      type: String,
+      // required: true,
+    },
+    CarLightFlashing: {
+      type: String,
+      // required: true,
+    },
+    Drive: {
+      type: String,
+      // required: true,
+    },
+    FrontPassenger: {
+      type: String,
+      // required: true,
+    },
+    SeatUpholstery: {
+      type: String,
+      // required: true,
+    },
+    LeatherwrappedSteeringWheel: {
+      type: String,
+      // required: true,
+    },
+    RearPassengerSeat: {
+      type: String,
+      // required: true,
+    },
+    Interiors: {
+      type: String,
+      // required: true,
+    },
+    InteriorColours: {
+      type: String,
+      // required: true,
+    },
+    RearArmrestFolding: {
+      type: String,
+      // required: true,
+    },
+    RearSeat: {
+      type: String,
+      // required: true,
+    },
+    SplitRear: {
+      type: String,
+      // required: true,
+    },
+    FrontSeatbackPockets: {
+      type: String,
+      // required: true,
+    },
+    Headrests: {
+      type: String,
+      // required: true,
+    },
+    CupHolders: {
+      type: String,
+      // required: true,
+    },
+    CooledGlovebox: {
+      type: String,
+      // required: true,
+    },
+    ORVMColour: {
+      type: String,
+      // required: true,
+    },
+    ScuffPlates: {
+      type: String,
+      // required: true,
+    },
+    PowerWindows: {
+      type: String,
+      // required: true,
+    },
+    OneTouchDown: {
+      type: String,
+      // required: true,
+    },
+    OneTouchUp: {
+      type: String,
+      // required: true,
+    },
+    AdjustableORVMs: {
+      type: String,
+      // required: true,
+    },
+    TurnIndicators: {
+      type: String,
+      // required: true,
+    },
+    RearDefogger: {
+      type: String,
+      // required: true,
+    },
+    RearWiper: {
+      type: String,
+      // required: true,
+    },
+    ExteriorDoor: {
+      type: String,
+      // required: true,
+    },
+    RainsensingWipers: {
+      type: String,
+      // required: true,
+    },
+    InteriorDoorHandles: {
+      type: String,
+      // required: true,
+    },
+    DoorPockets: {
+      type: String,
+      // required: true,
+    },
+    BootlidOpener: {
+      type: String,
+      // required: true,
+    },
+    RoofmountedAntenna: {
+      type: String,
+      // required: true,
+    },
+    BodycolouredBumpers: {
+      type: String,
+      // required: true,
+    },
+    BodyKitRub: {
+      type: String,
+      // required: true,
+    },
+    Headlights: {
+      type: String,
+      // required: true,
+    },
+    AutomaticHeadlamps: {
+      type: String,
+      // required: true,
+    },
+    FollowMeHomeHeadlamps: {
+      type: String,
+      // required: true,
+    },
+    Taillights: {
+      type: String,
+      // required: true,
+    },
+    DaytimeRunningLights: {
+      type: String,
+      // required: true,
+    },
+    FogLights: {
+      type: String,
+      // required: true,
+    },
+    PuddleLamps: {
+      type: String,
+      // required: true,
+    },
+    CabinLamps: {
+      type: String,
+      // required: true,
+    },
+    HeadlightHeightAdjuster: {
+      type: String,
+      // required: true,
+    },
+    InstantaneousConsumption: {
+      type: String,
+      // required: true,
+    },
+    InstrumentCluster: {
+      type: String,
+      // required: true,
+    },
+    TripMeter: {
+      type: String,
+      // required: true,
+    },
+    AverageFuelConsumption: {
+      type: String,
+      // required: true,
+    },
+    AverageSpeed: {
+      type: String,
+      // required: true,
+    },
+    DistancetoEmptyClock: {
+      type: String,
+      // required: true,
+    },
+    LowFuelLevelWarning: {
+      type: String,
+      // required: true,
+    },
+    DoorAjarWarning: {
+      type: String,
+      // required: true,
+    },
+    AdjustableClusterBrightness: {
+      type: String,
+      // required: true,
+    },
+    GearIndicator: {
+      type: String,
+      // required: true,
+    },
+    ShiftIndicator: {
+      type: String,
+      // required: true,
+    },
+    Tachometer: {
+      type: String,
+      // required: true,
+    },
+    SmartConnectivity: {
+      type: String,
+      // required: true,
+    },
+    Display: {
+      type: String,
+      // required: true,
+    },
+    Touchscreen: {
+      type: String,
+      // required: true,
+    },
+    SizeIntegratedMusicSystem: {
+      type: String,
+      // required: true,
+    },
+    Speakers: {
+      type: String,
+      // required: true,
+    },
+    Steeringmounted: {
+      type: String,
+      // required: true,
+    },
+    controls: {
+      type: String,
+      // required: true,
+    },
+    VoiceCommand: {
+      type: String,
+      // required: true,
+    },
+    GPSNavigationSystem: {
+      type: String,
+      // required: true,
+    },
+    BluetoothCompatibility: {
+      type: String,
+      // required: true,
+    },
+    AUXCompatibility: {
+      type: String,
+      // required: true,
+    },
+    AMRadio: {
+      type: String,
+      // required: true,
+    },
+    USBCompatibility: {
+      type: String,
+      // required: true,
+    },
+    HeadUnitSize: {
+      type: String,
+      // required: true,
+    },
+    iPodCompatibility: {
+      type: String,
+      // required: true,
+    },
+    BatteryWarranty: {
+      type: String,
+      // required: true,
+    },
+    BatteryWarranty: {
+      type: String,
+      // required: true,
+    },
+    Warranty: {
+      type: String,
+      // required: true,
+    },
+    Warranty: {
+      type: String,
+      // required: true,
+    },
+    MCD: {
+      type: String,
+      // required: true,
+    },
+    ExtendedWarranty: {
+      type: String,
+      // required: true,
+    },
+    EmergencyBrake: {
+      type: String,
+      // required: true,
+    },
+    LightFlashing: {
+      type: String,
+      // required: true,
+    },
+    // Child Seat Anchor Points	Hill Descent Control	Rear AC	Emergency Call	Rear Row Seat Adjustment	Leather-wrapped Gear Knob	Driver Armrest	Ambient Interior Lighting	Wireless Charger	Lane Departure Warning	Forward Collision Warning (FCW)	Automatic Emergency Braking (AEB)	High-beam Assist	Blind Spot Detection	Lane Departure Prevention	Rear Middle Head Rest	Four-Wheel-Drive	Limited Slip Differential (LSD)	Umbrella Storage in Door	Electronic Parking Brake	Over The Air (OTA) Updates	Remote Sunroof: Open / Close via App	Alexa Compatibility	Massage Seats	Split Third Row Seat	Driver Armrest Storage	Sunglass Holder	Sunroof / Moonroof	Chrome Finish Exhaust Pipe	Ambient Interior Count	Cornering Headlights	Light on Vanity Mirrors	Rear Reading Lamp	Glovebox Lamp	Heads Up Display (HUD)	Display Screen for Rear Passengers	Internal Hard Drive	Tax Collected at Source (TCS)	Rear Cross-traffic Assist	Differential Lock	Ventilated Seats	Ventilated Seat Type	Heated/Cooled Cup Holders	Third Row AC Zone	Third Row Seat Adjustment	Third Row Seat Type	Third Row Cup Holders	Side Window Blinds	Rear Windshield Blind	DVD Playback
   },
 
   {
