@@ -7,6 +7,8 @@ const upload = require("../middleware/fileUpload");
 const multer = require('multer');
 const xlsx = require('xlsx');
 const _ = require('lodash');
+const fileUpload = require('express-fileupload');
+router.use(fileUpload());
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, './Controller/'); // Define your file upload destination
