@@ -646,6 +646,9 @@ const mongoose = require("mongoose");
 
 const carSchema = new mongoose.Schema(
   {
+    Brand_name: {
+      type: String,
+    },
     Car_link: {
       type: String,
     },
@@ -864,10 +867,6 @@ const carSchema = new mongoose.Schema(
       type: String,
       // required: true,
     },
-    Mileage: {
-      type: String,
-      // required: true,
-    },
     Range: {
       type: String,
       // required: true,
@@ -901,10 +900,6 @@ const carSchema = new mongoose.Schema(
       // required: true,
     },
     MaxMotor: {
-      type: String,
-      // required: true,
-    },
-    Mileage: {
       type: String,
       // required: true,
     },
