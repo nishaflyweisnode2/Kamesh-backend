@@ -92,3 +92,26 @@ upload.single("video")(req, res, async (err) => {
     res.status(500).json({ error: 'Failed to delete video banner.' });
   }
 });
+
+
+exports.getVideoData = async (req, res) => {
+  try {
+    const videoTypes = await Car.aggregate([
+      { $group: { _id: { name: "$video_link" } } }
+    ]);
+
+    const videoData = videoTypes.map(brand => ({
+      name: brand._id.name
+    }));
+
+    const existingBrands = await Transmission.find({ name: { $in: videoData.map(brand => brand.name) } });
+    const newBody = videoData.filter(brand => !existingBrands.some(existingBrand => existingBrand.name === brand.name));
+
+    await Transmission.insertMany(newBody);
+
+    res.status(200).json({ status: 200, data: { videoTypes: newBody } });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};

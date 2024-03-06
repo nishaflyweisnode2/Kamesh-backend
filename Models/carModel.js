@@ -649,6 +649,9 @@ const carSchema = new mongoose.Schema(
     Brand_name: {
       type: String,
     },
+    Brand_link: {
+      type: String,
+    },
     Car_link: {
       type: String,
     },
@@ -765,7 +768,7 @@ const carSchema = new mongoose.Schema(
     },
     // car_images: {
     //   type: String,
-      // required: true,
+    // required: true,
     // },
     car_images: [{
       url: String,
@@ -782,7 +785,7 @@ const carSchema = new mongoose.Schema(
       type: String,
       // required: true,
     },
-   
+
     video_link: {
       type: String,
       // required: true,

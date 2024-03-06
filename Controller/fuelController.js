@@ -1,4 +1,5 @@
 const Fuel = require("../Models/fuelModel");
+const Car = require("../Models/carModel");
 
 const express = require('express');
 const router = express.Router();
@@ -103,6 +104,28 @@ try {
     }
 
     res.json({ message: 'Fuel deleted successfully' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+exports.getFuelData = async (req, res) => {
+  try {
+    const fuelTypes = await Car.aggregate([
+      { $group: { _id: { name: "$fuelType" } } }
+    ]);
+
+    const fuelData = fuelTypes.map(brand => ({
+      name: brand._id.name
+    }));
+
+    const existingBrands = await Fuel.find({ name: { $in: fuelData.map(brand => brand.name) } });
+    const newBody = fuelData.filter(brand => !existingBrands.some(existingBrand => existingBrand.name === brand.name));
+
+    await Fuel.insertMany(newBody);
+
+    res.status(200).json({ status: 200, data: { fuelTypes: newBody } });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');

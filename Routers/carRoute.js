@@ -1,6 +1,6 @@
 const express = require("express");
 const {
- createCar, getCar,getMostComparedCars,newCheck,emiCalculator,getCarbyId,updateCarbyId,bestSelling,upcoming,popular,justLaunched,addImages,numofReview,deleteCarbyId,newCar,getbestSelling,search,categorywiseInsert,categoryInsert,filter,myExcel,allfilter,singleExcel,compareCars,updateStatus,upcomingCars,allDataExcel,createCarbyExcel,uploadthroughExcel
+  createCar, getCar, getMostComparedCars, newCheck, emiCalculator, getCarbyId, updateCarbyId, bestSelling, upcoming, popular, justLaunched, addImages, numofReview, deleteCarbyId, newCar, updateCarById, getbestSelling, search, categorywiseInsert, categoryInsert, filter, myExcel, allfilter, singleExcel, compareCars, updateStatus, upcomingCars, allDataExcel, createCarbyExcel, uploadthroughExcel
 } = require("../Controller/carController");
 const router = express.Router();
 const upload = require("../middleware/fileUpload");
@@ -10,15 +10,15 @@ const _ = require('lodash');
 const fileUpload = require('express-fileupload');
 router.use(fileUpload());
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, './Controller/'); // Define your file upload destination
-    },
-    filename: function (req, file, cb) {
-      cb(null, file.kamesh.xlsx); // Keep the original file name
-    },
-  });
-  
-  // const upload = multer({ storage: storage });
+  destination: function (req, file, cb) {
+    cb(null, './Controller/'); // Define your file upload destination
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.kamesh.xlsx); // Keep the original file name
+  },
+});
+
+// const upload = multer({ storage: storage });
 router.route("/create").post(createCar);
 router.route("/get").get(getCar);
 router.route("/get/:id").get(getCarbyId);
@@ -38,13 +38,15 @@ router.route("/upcoming").get(upcomingCars);
 router.route("/uploadExcel").post(upload.single("uploadfiles"), uploadthroughExcel);
 
 
-router.route("/allData").post( allDataExcel);
-router.route("/single/excel").post( singleExcel);
-router.route("/my/excel").post( myExcel);
-router.route("/my/category").post( categoryInsert);
+router.route("/allData").post(allDataExcel);
+router.route("/single/excel").post(singleExcel);
+router.route("/my/excel").post(myExcel);
+router.route("/my/category").post(categoryInsert);
 // router.route("/my/category/wise").post( categorywiseInsert);
-router.route("/my/car").post( newCar);
-router.route("/check/car").post( newCheck);
+router.route("/my/car").post(newCar);
+router.route("/check/car").post(newCheck);
+router.put('/cars/:carId/update', updateCarById);
+
 
 
 
