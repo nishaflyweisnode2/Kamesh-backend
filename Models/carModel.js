@@ -644,6 +644,9 @@
 
 const mongoose = require("mongoose");
 
+const mongoosePaginate = require("mongoose-paginate");
+const mongooseAggregatePaginate = require("mongoose-aggregate-paginate");
+
 const carSchema = new mongoose.Schema(
   {
     Brand_name: {
@@ -1487,5 +1490,9 @@ const carSchema = new mongoose.Schema(
 );
 
 const Car = mongoose.model("Car", carSchema);
+
+carSchema.plugin(mongoosePaginate);
+carSchema.plugin(mongooseAggregatePaginate);
+
 
 module.exports = Car;

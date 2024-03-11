@@ -142,7 +142,7 @@ exports.deleteCarbyId = async (req, res) => {
   }
 };
 
-exports.search = async (req, res, next) => {
+exports.search1 = async (req, res, next) => {
   const carsCount = await Car.count();
   let apiFeature = await Car.aggregate([
     {
@@ -159,7 +159,7 @@ exports.search = async (req, res, next) => {
         from: "bodytypes",
         localField: "bodyType",
         foreignField: "_id",
-        as: "bodyType",
+        as: "bodytype",
       },
     },
     { $unwind: "$bodyType" },
@@ -230,6 +230,36 @@ exports.search = async (req, res, next) => {
     apiFeature = await Car.aggregate(data1);
   }
   res.status(200).json({ success: true, carsCount, apiFeature });
+};
+
+exports.search = async (req, res) => {
+  try {
+    const { search, status, page, limit } = req.query;
+    let query = {};
+    
+    if (search) {
+      query.$or = [
+        { "Transmission": { $regex: search, $options: "i" } },
+        { "description": { $regex: search, $options: "i" } }
+      ];
+    }
+
+    if (status) {
+      query.status = status;
+    }
+
+    let options = {
+      page: Number(page) || 1,
+      limit: Number(limit) || 15,
+      sort: { createdAt: -1 }
+    };
+
+    let data = await Car.paginate(query, options);
+    return res.status(200).json({ status: 200, message: "Car data found.", data: data });
+  } catch (err) {
+    console.error("Error in searching cars:", err);
+    return res.status(500).json({ status: 500, message: "Internal server error", error: err.message });
+  }
 };
 
 exports.filter = async (req, res, next) => {
