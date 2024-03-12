@@ -12,8 +12,8 @@ const cloudinary = require("cloudinary");
 // app.use(cors());
 app.use(express.json());
 // app.use(fileUpload());
-app.use(bodyParser.urlencoded({ extended: true}));
-app.get("/",(req,res)=>{
+app.use(bodyParser.urlencoded({ extended: true }));
+app.get("/", (req, res) => {
   res.send("Hello world")
 })
 
@@ -68,21 +68,24 @@ dotenv.config({ path: "config/config.env" });
 const mongoose = require("mongoose");
 
 
-connectDatabase = () => {
-    mongoose.set("strictQuery", false);
-    mongoose
-      .connect(process.env.MONGO_URI)
-      .then((con) =>
-        console.log(`Mongodb connected with server: ${con.connection.host}`)
-      );
-  };
-  
-  // Connecting to database
-  connectDatabase();
-  
-  const server = app.listen(process.env.PORT, () => {
-      console.log(`Server is working on port ${process.env.PORT}`);
-    }); 
+const connectDatabase = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+    console.log(`Mongodb connected with server: ${mongoose.connection.host}`);
+  } catch (error) {
+    console.error('Error connecting to MongoDB:', error);
+  }
+};
 
-    
+// Connecting to database
+connectDatabase();
+
+const server = app.listen(process.env.PORT, () => {
+  console.log(`Server is working on port ${process.env.PORT}`);
+});
+
+
 module.exports = { handler: serverless(app) };
