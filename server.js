@@ -19,6 +19,7 @@ app.get("/", (req, res) => {
 
 // Route Imports
 const user = require("./Routers/userRoute");
+const admin = require("./Routers/adminRoute");
 const brand = require("./Routers/brandRoute");
 const fuel = require("./Routers/fuelRoute");
 const transmission = require("./Routers/transmissionRoute");
@@ -42,6 +43,7 @@ const sell = require('./Routers/sellRoute');
 
 
 app.use("/api/v1", user);
+app.use("/", admin);
 app.use("/api/v1/brand", brand);
 app.use("/api/v1/fuel", fuel);
 app.use("/api/v1/transmission", transmission);

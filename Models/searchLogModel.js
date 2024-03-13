@@ -4,11 +4,13 @@ const searchLogSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+    },
+    carId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Car',
     },
     searchQuery: {
         type: String,
-        required: true
     },
     timestamp: {
         type: Date,

@@ -25,28 +25,29 @@ const verifyToken = (req, res, next) => {
         const user = await User.findOne({ _id: decoded.id });
         const user1 = await User.findOne({ _id: decoded.id });
         if (!user && !user1) {
-            return res.status(400).send({message: "The user that this token belongs to does not exist",
+            return res.status(400).send({
+                message: "The user that this token belongs to does not exist",
             });
         }
-        req.user = user || user1 ;
+        req.user = user || user1;
         //console.log(user);
         next();
     });
 };
 const authorizeRoles = (...roles) => {
     return (req, res, next) => {
-      if (!roles.includes(req.user.role)) {
-        return next(
-          new ErrorHander(
-            `Role: ${req.user.role} is not allowed to access this resouce `,
-            403
-          )
-        );
-      }
-  
-      next();
+        if (!roles.includes(req.user.role)) {
+            return next(
+                new ErrorHander(
+                    `Role: ${req.user.role} is not allowed to access this resouce `,
+                    403
+                )
+            );
+        }
+
+        next();
     };
-  };
+};
 const isAdmin = (req, res, next) => {
     const token =
         req.headers["x-access-token"] ||
@@ -54,27 +55,39 @@ const isAdmin = (req, res, next) => {
 
     if (!token) {
         return res.status(403).send({
-            message: "no token provided! Access prohibited",
+            message: "No token provided! Access prohibited",
         });
     }
 
-    jwt.verify(token, process.env.SECRET_KEY, async (err, decoded) => {
+    jwt.verify(token, "node5flyweis", async (err, decoded) => {
         if (err) {
             return res.status(401).send({
-                message: "UnAuthorised ! Admin role is required! ",
+                message: "Unauthorized! Admin role is required!",
             });
         }
 
-        const user = await AdminModel.findOne({ email: decoded.id });
+        try {
+            const user = await User.findOne({ _id: decoded.id });
 
-        if (!user) {
-            return res.status(400).send({
-                message: "The admin that this  token belongs to does not exist",
+            if (!user) {
+                return res.status(400).send({
+                    message: "The admin that this  token belongs to does not exist",
+                });
+            }
+
+            if (user.role !== "admin") {
+                return res.status(403).send({
+                    message: "Access prohibited. Admin role is required!",
+                });
+            }
+
+            req.user = user;
+            next();
+        } catch (error) {
+            return res.status(500).json({
+                message: "Internal server error",
             });
         }
-        req.user = user;
-
-        next();
     });
 };
 

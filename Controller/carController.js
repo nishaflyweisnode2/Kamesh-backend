@@ -53,20 +53,16 @@ exports.createCar = async (req, res) => {
         return res.status(400).json({ msg: err.message });
       }
       let images = [];
-      //   console.log(req.files);
       for (let i = 0; i < req.files.length; i++) {
         images.push(req.files[i] ? req.files[i].path : "");
       }
-      // Create a new car document using the Car model
-      const data = { ...req.body, images: images };
+      const data = { ...req.body, car_images: images };
 
       const cars = await Car.create(data);
-      return res
-        .status(200)
-        .json({ message: "car add successfully.", status: 200, data: cars });
+      return res.status(200).json({ message: "car add successfully.", status: 200, data: cars });
     });
   } catch (error) {
-    console.log(req.body);
+    console.log(error);
     res.status(500).json({
       status: 500,
       message: "internal server error ",
@@ -155,13 +151,6 @@ exports.search = async (req, res) => {
 
     const { search, status, page, limit } = req.query;
 
-    const searchLog = new SearchLog({
-      userId: userId,
-      searchQuery: search,
-      timestamp: new Date()
-    });
-    await searchLog.save();
-
     let query = {};
 
     if (search) {
@@ -188,6 +177,17 @@ exports.search = async (req, res) => {
     };
 
     let data = await Car.paginate(query, options);
+
+    for (const car of data.docs) {
+      const searchLog = new SearchLog({
+        userId: userId,
+        searchQuery: search,
+        carId: car._id,
+        timestamp: new Date()
+      });
+      await searchLog.save();
+    }
+
     return res.status(200).json({ status: 200, message: "Car data found.", data: data });
   } catch (err) {
     console.error("Error in searching cars:", err);
@@ -436,64 +436,6 @@ exports.singleExcel = async (req, res) => {
     res
       .status(500)
       .json({ error: "An error occurred while processing the Excel file" });
-  }
-};
-
-exports.myExcel = async (req, res) => {
-  try {
-    const excelFile = req.files.excelFile;
-
-    if (!excelFile) {
-      return res.status(400).json({ error: "Excel file not provided" });
-    }
-
-    const fileBuffer = excelFile.data;
-    const workbook = xlsx.read(fileBuffer);
-    const sheetName = workbook.SheetNames[0];
-    const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
-    for (const row of sheetData) {
-      const carData = {
-        ID: row.ID,
-        modelName: row["Model name"],
-        allVersions: row["All Versions"],
-        carColors: row["Car colors"],
-        company: row.Company,
-        specifications: {
-          engineTransmission: {
-            engine: row["__EMPTY"], // Adjust these fields based on your Excel data
-            acceleration: row["__EMPTY_14"], // Adjust these fields based on your Excel data
-            fuelType: row["__EMPTY_1"], // Adjust these fields based on your Excel data
-            maxPower: row["__EMPTY_2"],
-            maxTorque: row["__EMPTY_3"],
-            maxEnginePerformance: row["__EMPTY_4"],
-            maxMotorPerformance: row["__EMPTY_5"],
-            mileage: row["__EMPTY_6"],
-            drivingRange: row["__EMPTY_7"],
-            drivetrain: row["__EMPTY_8"],
-            transmission: row["__EMPTY_9"],
-            emissionStandard: row["__EMPTY_10"],
-            battery: row["__EMPTY_11"],
-            electricMotor: row["__EMPTY_12"],
-            others: row["__EMPTY_13"],
-          },
-          dimension: {
-            length: row["__EMPTY_19"], // Adjust these fields based on your Excel data
-            width: row["__EMPTY_17"], // Adjust these fields based on your Excel data
-            height: row["__EMPTY_18"], // Adjust these fields based on your Excel data
-            base: row["__EMPTY_19"],
-            kerbweight: row["__EMPTY_20"],
-          },
-        },
-      };
-      console.log(carData);
-      const car = new Car(carData);
-      await car.save();
-    }
-
-    res.status(201).json({ message: "Data inserted from Excel file" });
-  } catch (error) {
-    console.error("Error inserting data from Excel file:", error);
-    res.status(500).json({ error: "An error occurred while inserting data" });
   }
 };
 
@@ -942,260 +884,6 @@ exports.newCar = async (req, res) => {
   }
 };
 
-exports.newCheck = async (req, res) => {
-  try {
-    const excelFile = req.files.excelFile;
-
-    if (!excelFile) {
-      return res.status(400).json({ error: "Excel file not provided" });
-    }
-
-    const fileBuffer = excelFile.data;
-    const workbook = xlsx.read(fileBuffer, { type: "buffer" });
-    const sheetName = workbook.SheetNames[0];
-    const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
-
-    const data = [];
-
-    for (const row of sheetData) {
-      const reviewTextArray = row.review_text.split("|");
-      const parsedReviewArray = [];
-
-      for (const reviewText of reviewTextArray) {
-        const [username, review] = reviewText.split(":");
-        parsedReviewArray.push({
-          username: username ? username.trim() : null,
-          review: review ? review.trim() : null,
-        });
-      }
-      console.log(parsedReviewArray);
-
-      const carData = {
-        Brand_name: row.Brand_name,
-        Car_link: row.Car_link,
-        State: row.State,
-        Location: row.Location,
-        cityId: row.cityId,
-        Display_name: row.Display_name,
-        ModelId: row.ModelId,
-        Make: row.Make,
-        ModelName: row.ModelName,
-        Launched_date: row.Launched_date,
-        varient_link: row.varient_link,
-        price_breakup_url: row.price_breakup_url,
-        Varient_name: row.Varient_name,
-        Varient_id: row.Varient_id,
-        EMI: row.EMI,
-        ExShowroomPrice: row.ExShowroomPrice,
-        SKU: row.SKU,
-        MPN: row.MPN,
-        bodyType: row.bodyType,
-        fuelType: row.fuelType,
-        fuelConsumption: row.fuelConsumption,
-        summery_description: row.summery_description,
-        color_options: row.color_options,
-        color_options_with_images: row.color_options_with_images,
-        vehicleTransmission: row.vehicleTransmission,
-        driveWheelConfiguration: row.driveWheelConfiguration,
-        rating: row.rating,
-        reviewCount: row.reviewCount,
-        totalRatings: row.totalRatings,
-        Total_image_count: row.Total_image_count,
-        car_images: [{
-          url: row.car_images,
-        }],
-        review_text: [{
-          username: { type: String, default: null },
-          review: row.review,
-        }],
-        brochure_link: row.brochure_link,
-        Upcoming_Cars: row.Upcoming_Cars,
-        video_link: row.video_link,
-        sponsored_cars: row.sponsored_cars,
-        nearByCities_price: row.nearByCities_price,
-        nearByArea_price: row.nearByArea_price,
-        popularCities_price: row.popularCities_price,
-        minPrice: row.minPrice,
-        maxPrice: row.maxPrice,
-        RTOCorporate: row.RTOCorporate,
-        RTO: row.RTO,
-        AMC: row.AMC,
-        Insurance: row.Insurance,
-        HypothecationCharges: row.HypothecationCharges,
-        FASTag: row.FASTag,
-        ExtendedWarranty: row.ExtendedWarranty,
-        AccessoriesPackage: row.AccessoriesPackage,
-        LoyaltyCard: row.LoyaltyCard,
-        TopSpeed: row.TopSpeed,
-        Acceleration: row.Acceleration,
-        City: row.City,
-        Mileage: row.Mileage,
-        Highway: row.Highway,
-        Range: row.Range,
-        Engine: row.Engine,
-        EngineType: row.EngineType,
-        FuelType: row.FuelType,
-        MaxPower: row.MaxPower,
-        MaxTorque: row.MaxTorque,
-        Performance: row.Performance,
-        ElectricMotor: row.ElectricMotor,
-        MaxMotor: row.MaxMotor,
-        DrivingRange: row.DrivingRange,
-        Drivetrain: row.Drivetrain,
-        Transmission: row.Transmission,
-        EmissionStandard: row.EmissionStandard,
-        Turbocharger: row.Turbocharger,
-        Battery: row.Battery,
-        BatteryCharging: row.BatteryCharging,
-        ElectricMotor: row.ElectricMotor,
-        Others: row.Others,
-        AlternateFuel: row.AlternateFuel,
-        Length: row.Length,
-        Width: row.Width,
-        Height: row.Height,
-        Wheelbase: row.Wheelbase,
-        GroundClearance: row.GroundClearance,
-        KerbWeight: row.KerbWeight,
-        Doors: row.Doors,
-        SeatingCapacity: row.SeatingCapacity,
-        NoofRows: row.NoofRows,
-        Bootspace: row.Bootspace,
-        FuelTankCapacity: row.FuelTankCapacity,
-        FourWheelSteering: row.FourWheelSteering,
-        FrontSuspension: row.FrontSuspension,
-        RearSuspension: row.RearSuspension,
-        FrontBrake: row.FrontBrake,
-        RearBrakeType: row.RearBrakeType,
-        MinimumTurningRadius: row.MinimumTurningRadius,
-        SteeringTypeWheels: row.SteeringTypeWheels,
-        SpareWheel: row.SpareWheel,
-        FrontTyres: row.FrontTyres,
-        RearTyres: row.RearTyres,
-        Overspeed: row.Overspeed,
-        PunctureRepairKit: row.PunctureRepairKit,
-        NCAPRating: row.NCAPRating,
-        Airbags: row.Airbags,
-        RearMiddleThreePointseatbelt: row.RearMiddleThreePointseatbelt,
-        TyrePressureMonitoringSystem: row.TyrePressureMonitoringSystem,
-        Seat: row.Seat,
-        AntiLock: row.AntiLock,
-        Electronic: row.Electronic,
-        BrakeAssist: row.BrakeAssist,
-        ElectronicStabilityProgram: row.ElectronicStabilityProgram,
-        HillHoldControl: row.HillHoldControl,
-        EngineImmobiliser: row.EngineImmobiliser,
-        CentralLocking: row.CentralLocking,
-        SpeedSensingDoor: row.SpeedSensingDoor,
-        Lock: row.Lock,
-        SafetyLock: row.SafetyLock,
-        AirConditioner: row.AirConditioner,
-        FrontAC: row.FrontAC,
-        Heater: row.Heater,
-        Vanity: row.Vanity,
-        Mirrors: row.Mirrors,
-        Cabin: row.Cabin,
-        AntiglareMirrors: row.AntiglareMirrors,
-        ParkingAssist: row.ParkingAssist,
-        ParkingSensors: row.ParkingSensors,
-        Headlight: row.Headlight,
-        Keyless: row.Keyless,
-        Start: row.Start,
-        SteeringAdjustment: row.SteeringAdjustment,
-        PowerOutlets: row.PowerOutlets,
-        FindMyCar: row.FindMyCar,
-        CheckVehicleStatus: row.CheckVehicleStatus,
-        Geofence: row.Geofence,
-        RemoteAC: row.RemoteAC,
-        CarLock: row.CarLock,
-        CarLightFlashing: row.CarLightFlashing,
-        Drive: row.Drive,
-        FrontPassenger: row.FrontPassenger,
-        SeatUpholstery: row.SeatUpholstery,
-        LeatherwrappedSteeringWheel: row.LeatherwrappedSteeringWheel,
-        RearPassengerSeat: row.RearPassengerSeat,
-        Interiors: row.Interiors,
-        InteriorColours: row.InteriorColours,
-        RearArmrestFolding: row.RearArmrestFolding,
-        RearSeat: row.RearSeat,
-        SplitRear: row.SplitRear,
-        FrontSeatbackPockets: row.FrontSeatbackPockets,
-        Headrests: row.Headrests,
-        CupHolders: row.CupHolders,
-        CooledGlovebox: row.CooledGlovebox,
-        ORVMColour: row.ORVMColour,
-        ScuffPlates: row.ScuffPlates,
-        PowerWindows: row.PowerWindows,
-        OneTouchDown: row.OneTouchDown,
-        OneTouchUp: row.OneTouchUp,
-        AdjustableORVMs: row.AdjustableORVMs,
-        TurnIndicators: row.TurnIndicators,
-        RearDefogger: row.RearDefogger,
-        RearWiper: row.RearWiper,
-        ExteriorDoor: row.ExteriorDoor,
-        RainsensingWipers: row.RainsensingWipers,
-        InteriorDoorHandles: row.InteriorDoorHandles,
-        DoorPockets: row.DoorPockets,
-        BootlidOpener: row.BootlidOpener,
-        RoofmountedAntenna: row.RoofmountedAntenna,
-        BodycolouredBumpers: row.BodycolouredBumpers,
-        BodyKitRub: row.BodyKitRub,
-        Headlights: row.Headlights,
-        AutomaticHeadlamps: row.AutomaticHeadlamps,
-        FollowMeHomeHeadlamps: row.FollowMeHomeHeadlamps,
-        Taillights: row.Taillights,
-        DaytimeRunningLights: row.DaytimeRunningLights,
-        FogLights: row.FogLights,
-        PuddleLamps: row.PuddleLamps,
-        CabinLamps: row.CabinLamps,
-        HeadlightHeightAdjuster: row.HeadlightHeightAdjuster,
-        InstantaneousConsumption: row.InstantaneousConsumption,
-        InstrumentCluster: row.InstrumentCluster,
-        TripMeter: row.TripMeter,
-        AverageFuelConsumption: row.AverageFuelConsumption,
-        AverageSpeed: row.AverageSpeed,
-        DistancetoEmptyClock: row.DistancetoEmptyClock,
-        LowFuelLevelWarning: row.LowFuelLevelWarning,
-        DoorAjarWarning: row.DoorAjarWarning,
-        AdjustableClusterBrightness: row.AdjustableClusterBrightness,
-        GearIndicator: row.GearIndicator,
-        ShiftIndicator: row.ShiftIndicator,
-        Tachometer: row.Tachometer,
-        SmartConnectivity: row.SmartConnectivity,
-        Display: row.Display,
-        Touchscreen: row.Touchscreen,
-        SizeIntegratedMusicSystem: row.SizeIntegratedMusicSystem,
-        Speakers: row.Speakers,
-        Steeringmounted: row.Steeringmounted,
-        controls: row.controls,
-        VoiceCommand: row.VoiceCommand,
-        GPSNavigationSystem: row.GPSNavigationSystem,
-        BluetoothCompatibility: row.BluetoothCompatibility,
-        AUXCompatibility: row.AUXCompatibility,
-        AMRadio: row.AMRadio,
-        USBCompatibility: row.USBCompatibility,
-        HeadUnitSize: row.HeadUnitSize,
-        iPodCompatibility: row.iPodCompatibility,
-        BatteryWarranty: row.BatteryWarranty,
-        Warranty: row.Warranty,
-        MCD: row.MCD,
-        ExtendedWarranty: row.ExtendedWarranty,
-        EmergencyBrake: row.EmergencyBrake,
-        LightFlashing: row.LightFlashing
-      };
-
-      data.push(carData);
-    }
-    console.log(data);
-
-    // Insert data into the database
-    await Car.insertMany(data);
-
-    res.json({ message: "Data inserted successfully", data });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
 
 exports.updateCarById = async (req, res) => {
   try {
@@ -1486,5 +1174,41 @@ exports.emiCalculator = async (req, res) => {
     return res.status(500).json({ status: 500, error: "Internal Server Error" });
   }
 };
+
+
+exports.showMostSearchedCars = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const mostSearchedCars = await SearchLog.aggregate([
+      { $match: { userId: userId } },
+      { $group: { _id: "$carId", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 }
+    ]);
+
+    if (mostSearchedCars.length === 0) {
+      return res.status(404).json({ status: 404, message: "No searched cars found for the user" });
+    }
+
+    const carIds = mostSearchedCars.map(item => item._id);
+
+    const carsData = await Car.find({ _id: { $in: carIds } });
+
+    const mostSearchedCarsWithData = mostSearchedCars.map(item => {
+      const carData = carsData.find(car => car._id.toString() === item._id.toString());
+      return {
+        car: carData,
+        searchCount: item.count
+      };
+    });
+
+    return res.status(200).json({ status: 200, message: "Most searched cars found", data: mostSearchedCarsWithData });
+  } catch (error) {
+    console.error("Error fetching most searched cars:", error);
+    return res.status(500).json({ status: 500, message: "Internal server error", error: error.message });
+  }
+};
+
 
 

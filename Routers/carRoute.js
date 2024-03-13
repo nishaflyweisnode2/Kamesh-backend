@@ -1,6 +1,6 @@
 const express = require("express");
 const {
-  createCar, getCar, getMostComparedCars, newCheck, emiCalculator, getCarbyId, updateCarbyId, bestSelling, upcoming, justLaunchedCar, getJustLaunched, numofReview, deleteCarbyId, newCar, updateCarById, getbestSelling, search, filter, myExcel, allfilter, singleExcel, compareCars, upcomingCars, allDataExcel, getPopularCar, popularCar, highRatedCar, getHighRatedCar,
+  createCar, getCar, getMostComparedCars, newCheck, emiCalculator, getCarbyId, updateCarbyId, bestSelling, upcoming, justLaunchedCar, getJustLaunched, numofReview, deleteCarbyId, newCar, updateCarById, getbestSelling, search, filter, myExcel, allfilter, singleExcel, compareCars, upcomingCars, allDataExcel, getPopularCar, popularCar, highRatedCar, getHighRatedCar,showMostSearchedCars
 } = require("../Controller/carController");
 const authJwt = require("../middleware/authJwt");
 
@@ -36,9 +36,7 @@ router.route("/compare/most").get(getMostComparedCars);
 
 router.route("/allData").post(allDataExcel);
 router.route("/single/excel").post(singleExcel);
-router.route("/my/excel").post(myExcel);
 router.route("/my/car").post(newCar);
-router.route("/check/car").post(newCheck);
 router.put('/cars/:carId/update', updateCarById);
 
 
@@ -57,6 +55,8 @@ router.route("/upcoming/get").get(upcoming);
 router.route("/new/launched/:carId").put(justLaunchedCar);
 router.route("/new/launched/get").get(getJustLaunched);
 router.get('/emi-Calculator/:loanAmount/:interestRate/:tenure', emiCalculator);
+router.get('/most-searched-cars', authJwt.verifyToken, showMostSearchedCars);
+
 
 
 

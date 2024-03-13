@@ -1127,19 +1127,10 @@ const carSchema = new mongoose.Schema(
     BatteryWarranty: {
       type: String,
     },
-    BatteryWarranty: {
-      type: String,
-    },
-    Warranty: {
-      type: String,
-    },
     Warranty: {
       type: String,
     },
     MCD: {
-      type: String,
-    },
-    ExtendedWarranty: {
       type: String,
     },
     EmergencyBrake: {
