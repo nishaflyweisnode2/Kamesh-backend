@@ -179,7 +179,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/kamesh-backend/dev/1710338160010-2024-03-13T13:56:00.010Z/kamesh-backend.zip"
+                "S3Key": "serverless/kamesh-backend/dev/1710753593299-2024-03-18T09:19:53.299Z/kamesh-backend.zip"
               },
               "Handler": "server.handler",
               "Runtime": "nodejs18.x",
@@ -197,14 +197,14 @@
               "AppLogGroup"
             ]
           },
-          "AppLambdaVersionaCTu4c2h4HPIRSHEAsFjGp1xceTy25hlOTTuTsWIgk": {
+          "AppLambdaVersionX8omC7eIoLjIQ7ZFQYF13c7gWhe20G2kNBLjh8mjW4": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "AppLambdaFunction"
               },
-              "CodeSha256": "/bazo6mMpOVh7aQk0iUZS8SU+cflIBjn0OiZjVw/nwE="
+              "CodeSha256": "iVrswqhw750mOVbQCDq9q5otd9WD4hdmZtaBlVVIaFM="
             }
           },
           "ApiGatewayRestApi": {
@@ -425,7 +425,7 @@
               "AppLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1710338095567": {
+          "ApiGatewayDeployment1710753513739": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -490,7 +490,7 @@
           "AppLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "AppLambdaVersionaCTu4c2h4HPIRSHEAsFjGp1xceTy25hlOTTuTsWIgk"
+              "Ref": "AppLambdaVersionX8omC7eIoLjIQ7ZFQYF13c7gWhe20G2kNBLjh8mjW4"
             },
             "Export": {
               "Name": "sls-kamesh-backend-dev-AppLambdaFunctionQualifiedArn"
@@ -671,7 +671,7 @@
         "timeout": 6,
         "runtime": "nodejs18.x",
         "vpc": {},
-        "versionLogicalId": "AppLambdaVersionaCTu4c2h4HPIRSHEAsFjGp1xceTy25hlOTTuTsWIgk"
+        "versionLogicalId": "AppLambdaVersionX8omC7eIoLjIQ7ZFQYF13c7gWhe20G2kNBLjh8mjW4"
       }
     },
     "configValidationMode": "warn",
@@ -693,7 +693,7 @@
     "artifact": "C:\\Users\\Dev\\Downloads\\project\\Kamesh-backend\\.serverless\\kamesh-backend.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/kamesh-backend/dev/1710338160010-2024-03-13T13:56:00.010Z",
+    "artifactDirectoryName": "serverless/kamesh-backend/dev/1710753593299-2024-03-18T09:19:53.299Z",
     "artifact": "kamesh-backend.zip"
   }
 }

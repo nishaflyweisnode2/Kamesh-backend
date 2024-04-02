@@ -3,7 +3,7 @@ const auth = require('../Controller/adminController');
 
 const authJwt = require("../middleware/authJwt");
 
-const { carImage } = require('../middleware/iamgeUpload');
+const { carImage, Image } = require('../middleware/iamgeUpload');
 
 const router = express();
 
@@ -27,6 +27,7 @@ router.get('/api/v1/admin/reviews/cars', [authJwt.isAdmin], auth.getAllReviews);
 router.get('/api/v1/admin/reviews/user/:userId', [authJwt.isAdmin], auth.getReviewByUserId);
 router.get('/api/v1/admin/cars/:carId/reviews', [authJwt.isAdmin], auth.getCarReviews);
 router.delete('/api/v1/admin/reviews/:reviewId', [authJwt.isAdmin], auth.deleteReview);
+router.post("/api/v1/admin/image", Image.array("image"), auth.imageUplod);
 
 
 

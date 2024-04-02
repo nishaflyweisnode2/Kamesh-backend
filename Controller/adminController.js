@@ -11,6 +11,7 @@ const nodemailer = require("nodemailer");
 var newOTP = require("otp-generators");
 const SearchLog = require('../Models/searchLogModel');
 const Review = require('../Models/reviewmodel');
+const Image = require('../Models/imageModel');
 
 
 
@@ -939,5 +940,36 @@ exports.deleteReview = async (req, res) => {
     } catch (error) {
         console.error('Error deleting review:', error);
         res.status(500).json({ status: 500, message: 'Internal server error', error: error.message });
+    }
+};
+
+exports.imageUplod = async (req, res) => {
+    try {
+        console.log(req.file);
+        let images = [];
+        if (req.files) {
+            for (let j = 0; j < req.files.length; j++) {
+                let obj = {
+                    url: req.files[j].path,
+                };
+                images.push(obj);
+            }
+        }
+            const data = { images: images };
+
+            const banner = await Image.create(data);
+            return res
+                .status(200)
+                .json({
+                    message: "Image added successfully.",
+                    status: 200,
+                    data: banner,
+                });
+    } catch (error) {
+        res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: error.message,
+        });
     }
 };

@@ -9,6 +9,8 @@ cloudinary.config({ cloud_name: "dtijhcmaa", api_key: "624644714628939", api_sec
 
 const storage = new CloudinaryStorage({ cloudinary: cloudinary, params: { folder: "Kamesh/carImage", allowed_formats: ["jpg", "jpeg", "png", "PNG", "xlsx", "xls", "pdf", "PDF"], }, });
 const carImage = multer({ storage: storage });
+const storage1 = new CloudinaryStorage({ cloudinary: cloudinary, params: { folder: "Kamesh/Image", allowed_formats: ["jpg", "jpeg", "png", "PNG", "xlsx", "xls", "pdf", "PDF"], }, });
+const Image = multer({ storage: storage1 });
 
 
 
@@ -16,4 +18,4 @@ const carImage = multer({ storage: storage });
 
 
 
-module.exports = { carImage,}
+module.exports = { carImage, Image}

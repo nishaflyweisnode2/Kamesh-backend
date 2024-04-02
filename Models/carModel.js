@@ -527,6 +527,9 @@ const carSchema = new mongoose.Schema(
     Car_link: {
       type: String,
     },
+    Car_first_link: {
+      type: String,
+    },
     State: {
       type: String,
     },
@@ -587,12 +590,13 @@ const carSchema = new mongoose.Schema(
     summery_description: {
       type: String,
     },
-    color_options: {
+    color_options: [{
       type: String,
-    },
-    color_options_with_images: {
-      type: String,
-    },
+    }],
+    color_options_with_images: [{
+      url: String,
+      name: String
+    }],
     vehicleTransmission: {
       type: String,
     },
@@ -635,15 +639,17 @@ const carSchema = new mongoose.Schema(
     sponsored_cars: {
       type: String,
     },
-    nearByCities_price: {
-      type: String,
-    },
+    nearByCities_price: [{
+      city: String,
+      price: String,
+    }],
     nearByArea_price: {
       type: String,
     },
-    popularCities_price: {
-      type: String,
-    },
+    popularCities_price: [{
+      city: String,
+      price: String
+    }],
     minPrice: {
       type: String,
     },

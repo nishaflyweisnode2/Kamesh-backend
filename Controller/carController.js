@@ -658,6 +658,44 @@ exports.newCar = async (req, res) => {
     const data = [];
 
     for (const row of sheetData) {
+      const carImageURLs = row.car_images.split("|");
+      const carImages = [];
+
+      for (const url of carImageURLs) {
+        carImages.push({ url });
+      }
+
+      const colorOptionsArray = row.color_options.split("|").map(option => option.trim());
+
+      let colorOptionsWithImagesArray;
+      if (row.color_options_with_images) {
+        colorOptionsWithImagesArray = row.color_options_with_images.split("|").map(option => {
+          const parts = option.split(":");
+          const name = parts[0].trim();
+          const url = parts.slice(1).join(":").trim();
+          return { name, url };
+        });
+      }
+
+      let cityPricesArray;
+      if (row.nearByCities_price) {
+        cityPricesArray = row.nearByCities_price.split("|").map(cityPrice => {
+          const [city, price] = cityPrice.split(":").map(item => item.trim());
+          return { city, price };
+        });
+      }
+
+      let popularCityPricesArray;
+      if (row.popularCities_price) {
+        popularCityPricesArray = row.popularCities_price.split("|").map(cityPrice => {
+          const [city, price] = cityPrice.split(":").map(item => item.trim());
+          return { city, price };
+        });
+      }
+
+      console.log("popularCityPricesArray", popularCityPricesArray);
+      console.log("row.popularCities_price", row.popularCities_price);
+
       const carData = {
         Brand_name: row.Brand_name,
         Brand_link: row.Brand_link,
@@ -682,17 +720,18 @@ exports.newCar = async (req, res) => {
         fuelType: row.fuelType,
         fuelConsumption: row.fuelConsumption,
         summery_description: row.summery_description,
-        color_options: row.color_options,
-        color_options_with_images: row.color_options_with_images,
+        color_options: colorOptionsArray,
+        color_options_with_images: colorOptionsWithImagesArray,
         vehicleTransmission: row.vehicleTransmission,
         driveWheelConfiguration: row.driveWheelConfiguration,
         rating: row.rating,
         reviewCount: row.reviewCount,
         totalRatings: row.totalRatings,
         Total_image_count: row.Total_image_count,
-        car_images: [{
-          url: row.car_images,
-        }],
+        // car_images: [{
+        //   url: carImages,
+        // }],
+        car_images: carImages,
         review_text: [{
           username: row.username,
           review: row.review_text,
@@ -701,9 +740,9 @@ exports.newCar = async (req, res) => {
         Upcoming_Cars: row.Upcoming_Cars,
         video_link: row.video_link,
         sponsored_cars: row.sponsored_cars,
-        nearByCities_price: row.nearByCities_price,
+        nearByCities_price: cityPricesArray,
         nearByArea_price: row.nearByArea_price,
-        popularCities_price: row.popularCities_price,
+        popularCities_price: popularCityPricesArray,
         minPrice: row.minPrice,
         maxPrice: row.maxPrice,
         RTOCorporate: row.RTOCorporate,
@@ -871,7 +910,7 @@ exports.newCar = async (req, res) => {
         EmergencyBrake: row.EmergencyBrake,
         LightFlashing: row.LightFlashing
       };
-      console.log("carData", carData);
+      // console.log("carData", carData);
       data.push(carData);
     }
 
