@@ -699,6 +699,7 @@ exports.newCar = async (req, res) => {
       const carData = {
         Brand_name: row.Brand_name,
         Brand_link: row.Brand_link,
+        Car_first_link: row.Car_first_link,
         Car_link: row.Car_link,
         State: row.State,
         Location: row.Location,
@@ -922,7 +923,6 @@ exports.newCar = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 
 exports.updateCarById = async (req, res) => {
   try {
@@ -1170,7 +1170,6 @@ exports.updateCarById = async (req, res) => {
   }
 };
 
-
 exports.emiCalculator = async (req, res) => {
   try {
     const { loanAmount, interestRate, tenure } = req.params;
@@ -1213,7 +1212,6 @@ exports.emiCalculator = async (req, res) => {
     return res.status(500).json({ status: 500, error: "Internal Server Error" });
   }
 };
-
 
 exports.showMostSearchedCars = async (req, res) => {
   try {

@@ -256,6 +256,7 @@ exports.createCar = async (req, res) => {
         const {
             Brand_name,
             Brand_link,
+            Car_first_link,
             Car_link,
             State,
             Location,
@@ -477,6 +478,7 @@ exports.createCar = async (req, res) => {
         const newCar = new Car({
             Brand_name,
             Brand_link,
+            Car_first_link,
             Car_link,
             State,
             Location,
