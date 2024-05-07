@@ -1166,6 +1166,10 @@ const carSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isTopModelCar: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   {

@@ -11,6 +11,8 @@ const storage = new CloudinaryStorage({ cloudinary: cloudinary, params: { folder
 const carImage = multer({ storage: storage });
 const storage1 = new CloudinaryStorage({ cloudinary: cloudinary, params: { folder: "Kamesh/Image", allowed_formats: ["jpg", "jpeg", "png", "PNG", "xlsx", "xls", "pdf", "PDF"], }, });
 const Image = multer({ storage: storage1 });
+const storage2 = new CloudinaryStorage({ cloudinary: cloudinary, params: { folder: "Kamesh/usedCarImage", allowed_formats: ["jpg", "jpeg", "png", "PNG", "xlsx", "xls", "pdf", "PDF", 'jiff', 'JIFF', 'jfif', 'JFIF'], }, });
+const usedCarImage = multer({ storage: storage2 });
 
 
 
@@ -18,4 +20,4 @@ const Image = multer({ storage: storage1 });
 
 
 
-module.exports = { carImage, Image}
+module.exports = { carImage, Image, usedCarImage }

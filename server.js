@@ -9,7 +9,7 @@ const cors = require("cors");
 const cloudinary = require("cloudinary");
 // const fileUpload = require('express-fileupload');
 
-// app.use(cors());
+app.use(cors());
 app.use(express.json());
 // app.use(fileUpload());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -37,7 +37,7 @@ const notification = require('./Routers/notificationRoute');
 const bottom = require('./Routers/bottomRoute');
 const question = require('./Routers/questionRoute');
 const sell = require('./Routers/sellRoute');
-
+const usedCar = require('./Routers/usedCarRoute');
 
 
 
@@ -61,6 +61,7 @@ app.use('/api/v1/notification', notification);
 app.use('/api/v1/bottom', bottom);
 app.use('/api/v1/question', question);
 app.use('/api/v1/sell', sell);
+app.use('/api/v1/used', usedCar);
 
 
 

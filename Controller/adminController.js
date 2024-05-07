@@ -957,16 +957,16 @@ exports.imageUplod = async (req, res) => {
                 images.push(obj);
             }
         }
-            const data = { images: images };
+        const data = { images: images };
 
-            const banner = await Image.create(data);
-            return res
-                .status(200)
-                .json({
-                    message: "Image added successfully.",
-                    status: 200,
-                    data: banner,
-                });
+        const banner = await Image.create(data);
+        return res
+            .status(200)
+            .json({
+                message: "Image added successfully.",
+                status: 200,
+                data: banner,
+            });
     } catch (error) {
         res.status(500).json({
             status: 500,
