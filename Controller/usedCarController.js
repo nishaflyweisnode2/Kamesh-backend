@@ -32,9 +32,7 @@ const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("cloudinary").v2;
 cloudinary.config({
-    cloud_name: "dtijhcmaa",
-    api_key: "624644714628939",
-    api_secret: "tU52wM1-XoaFD2NrHbPrkiVKZvY",
+    cloud_name: "dtijhcmaa", api_key: "624644714628939", api_secret: "tU52wM1-XoaFD2NrHbPrkiVKZvY",
 });
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
@@ -57,10 +55,12 @@ const { log } = require("console");
 
 
 
-exports.createCar = async (req, res) => {
+exports.createUsedCar = async (req, res) => {
     try {
 
         const {
+            owner,
+            km,
             Brand_name,
             Brand_link,
             Car_first_link,
@@ -283,6 +283,8 @@ exports.createCar = async (req, res) => {
         }
 
         const newCar = new usedCar({
+            owner,
+            km,
             Brand_name,
             Brand_link,
             Car_first_link,

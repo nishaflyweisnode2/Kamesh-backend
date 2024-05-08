@@ -668,6 +668,14 @@ const carSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        owner: {
+            type: Boolean,
+            default: false,
+        },
+        km: {
+            type: Boolean,
+            default: false,
+        },
     },
 
     {

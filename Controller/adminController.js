@@ -12,7 +12,7 @@ var newOTP = require("otp-generators");
 const SearchLog = require('../Models/searchLogModel');
 const Review = require('../Models/reviewmodel');
 const Image = require('../Models/imageModel');
-
+const usedCar = require("../Models/usedCarModel");
 
 
 
@@ -55,6 +55,7 @@ exports.signin = async (req, res) => {
         const accessToken = jwt.sign({ id: user._id }, "node5flyweis");
 
         let obj = {
+            userId: user._id,
             name: user.name,
             mobileNumber: user.mobileNumber,
             email: user.email,
@@ -157,7 +158,7 @@ exports.resendOTP = async (req, res) => {
 
 exports.update = async (req, res) => {
     try {
-        const { name, email, mobileNumber, password } = req.body;
+        const { name, email, mobileNumber, password, address, liveIn, dateOfBirth, gender, twiterUrl, facebookurl } = req.body;
         const user = await User.findById(req.user.id);
         if (!user) {
             return res.status(404).send({ message: "not found" });
@@ -165,6 +166,12 @@ exports.update = async (req, res) => {
         user.name = name || user.name;
         user.email = email || user.email;
         user.mobileNumber = mobileNumber || user.mobileNumber;
+        user.address = address || user.address;
+        user.liveIn = liveIn || user.liveIn;
+        user.dateOfBirth = dateOfBirth || user.dateOfBirth;
+        user.gender = gender || user.gender;
+        user.twiterUrl = twiterUrl || user.twiterUrl;
+        user.facebookurl = facebookurl || user.facebookurl;
         if (req.body.password) {
             user.password = bcrypt.hashSync(password, 8) || user.password;
         }
@@ -973,5 +980,126 @@ exports.imageUplod = async (req, res) => {
             message: "Internal server error",
             data: error.message,
         });
+    }
+};
+
+exports.uploadCarImage = async (req, res) => {
+    try {
+        const { carId } = req.params;
+
+        const car = await Car.findById(carId);
+        if (!car) {
+            return res.status(404).json({ message: 'Car not found' });
+        }
+
+        const newImages = [];
+
+        if (req.files) {
+            for (let file of req.files) {
+                if (file.path) {
+                    const imageUrl = file.path;
+                    newImages.push({ url: imageUrl });
+                } else {
+                    console.error('Failed to upload file:', file.originalname);
+                }
+            }
+        }
+
+        // Append new images to the existing car images array
+        car.car_images = car.car_images.concat(newImages);
+
+        const updatedCar = await car.save();
+
+        return res.json({ message: 'Car images added successfully', data: updatedCar });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Failed to add car images', error: error.message });
+    }
+};
+
+exports.getPendingVerificationCars = async (req, res) => {
+    try {
+        const pendingVerificationUsers = await usedCar.find({ isAdminApproved: false });
+
+        return res.status(200).json({
+            status: 200,
+            data: pendingVerificationUsers,
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ status: 500, error: 'Internal Server Error' });
+    }
+};
+
+exports.updateVerificationStatus = async (req, res) => {
+    try {
+        const carId = req.params.id;
+        const { isAdminApproved, remarks, status } = req.body;
+
+        const car = await usedCar.findById(carId);
+        if (!car) {
+            return res.status(404).json({ status: 404, message: 'car not found' });
+        }
+
+        car.isAdminApproved = isAdminApproved;
+        car.remarks = remarks;
+
+        if (status) {
+            car.status = status;
+        }
+
+        if (isAdminApproved === false) {
+            car.isRejectedCar = true;
+        } else if (isAdminApproved === true) {
+            car.isRejectedCar = false;
+        }
+
+        await car.save();
+
+        // const welcomeMessage = `Hi, ${car.name}! Your Car Is Verifed By Admin Now You Can Book Your First Ride.`;
+        // const welcomeNotification = new Notification({
+        //     recipient: car._id,
+        //     content: welcomeMessage,
+        // });
+        // await welcomeNotification.save();
+
+        return res.status(200).json({
+            status: 200,
+            message: 'Verification status updated successfully',
+            data: car,
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ status: 500, error: 'Internal Server Error' });
+    }
+};
+
+exports.getVerifiedCars = async (req, res) => {
+    try {
+        const verifiedUsers = await usedCar.find({ isAdminApproved: true });
+
+        if (!verifiedUsers || verifiedUsers.length === 0) {
+            return res.status(404).json({ status: 404, message: 'No verified Car found' });
+        }
+
+        return res.status(200).json({ status: 200, data: verifiedUsers });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ status: 500, message: 'Failed to retrieve verified car', error: error.message });
+    }
+};
+
+exports.getRejectCars = async (req, res) => {
+    try {
+        const verifiedUsers = await usedCar.find({ isAdminApproved: false, isRejectedCar: true });
+
+        if (!verifiedUsers || verifiedUsers.length === 0) {
+            return res.status(404).json({ status: 404, message: 'No rejected car found' });
+        }
+
+        return res.status(200).json({ status: 200, data: verifiedUsers });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ status: 500, message: 'Failed to retrieve Rejected cars', error: error.message });
     }
 };

@@ -28,6 +28,11 @@ router.get('/api/v1/admin/reviews/user/:userId', [authJwt.isAdmin], auth.getRevi
 router.get('/api/v1/admin/cars/:carId/reviews', [authJwt.isAdmin], auth.getCarReviews);
 router.delete('/api/v1/admin/reviews/:reviewId', [authJwt.isAdmin], auth.deleteReview);
 router.post("/api/v1/admin/image", Image.array("image"), auth.imageUplod);
+router.put('/api/v1/admin/cars/image/:carId', carImage.array('image'),auth.uploadCarImage)
+router.get('/api/v1/admin/car/pending-verification', [authJwt.isAdmin], auth.getPendingVerificationCars);
+router.put('/api/v1/admin/car/:id/update-verification-status', [authJwt.isAdmin], auth.updateVerificationStatus);
+router.get('/api/v1/admin/verified-cars', [authJwt.isAdmin], auth.getVerifiedCars);
+router.get('/api/v1/admin/rejected-cars', [authJwt.isAdmin], auth.getRejectCars);
 
 
 

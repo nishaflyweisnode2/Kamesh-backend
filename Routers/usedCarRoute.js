@@ -29,7 +29,7 @@ const storage = multer.diskStorage({
 
 
 
-router.post("/add/car/create", [authJwt.isAdmin], usedCarImage.array('image'), auth.createCar);
+router.post("/add/usedCar/car/create", [authJwt.isAdmin], usedCarImage.array('image'), auth.createUsedCar);
 router.put("/:id/update", [authJwt.isAdmin], usedCarImage.array('image'), auth.updateCar);
 router.post("/:carId/upload-images", usedCarImage.array('image', 250), auth.updateCarImageById)
 router.put('/image/:carId', carImage.array('image'),auth.uploadCarImage)

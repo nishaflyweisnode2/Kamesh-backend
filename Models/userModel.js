@@ -18,27 +18,41 @@ const userSchema = new mongoose.Schema({
   address: {
     type: String,
   },
-  language:{
-    type:String
+  language: {
+    type: String
   },
   email: {
     type: String,
-    
+
   },
   password: {
     type: String,
-},
-  address: {
+  },
+  dateOfBirth: {
     type: String,
-    
+
+  },
+  gender: {
+    type: String,
+
+  },
+  liveIn: {
+    type: String,
+
   },
   profileImage: {
     type: String,
     default: null,
   },
+  facebookurl: {
+    type: String,
+  },
+  twiterUrl: {
+    type: String,
+  },
   role: {
     type: String,
-    enum: ['user', 'admin','vendor','warehouse','driver'],
+    enum: ['user', 'admin', 'vendor', 'warehouse', 'driver'],
     default: 'user',
   },
   createdAt: {

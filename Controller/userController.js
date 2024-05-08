@@ -259,3 +259,27 @@ exports.getCarReviews = async (req, res) => {
     });
   }
 };
+
+exports.uploadIdPicture = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    if (!req.file) {
+      return res.status(400).json({ status: 400, error: "Image file is required" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { profileImage: req.file.path },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ status: 404, message: 'User not found' });
+    }
+
+    return res.status(200).json({ status: 200, message: 'Uploaded successfully', data: updatedUser });
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to upload profile picture', error: error.message });
+  }
+};

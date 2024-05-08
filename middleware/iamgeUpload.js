@@ -13,11 +13,12 @@ const storage1 = new CloudinaryStorage({ cloudinary: cloudinary, params: { folde
 const Image = multer({ storage: storage1 });
 const storage2 = new CloudinaryStorage({ cloudinary: cloudinary, params: { folder: "Kamesh/usedCarImage", allowed_formats: ["jpg", "jpeg", "png", "PNG", "xlsx", "xls", "pdf", "PDF", 'jiff', 'JIFF', 'jfif', 'JFIF'], }, });
 const usedCarImage = multer({ storage: storage2 });
+const storage3 = new CloudinaryStorage({ cloudinary: cloudinary, params: { folder: "Kamesh//profileImage", allowed_formats: ["jpg", "jpeg", "png", "PNG", "xlsx", "xls", "pdf", "PDF"], }, });
+const profileImage = multer({ storage: storage3 });
 
 
 
 
 
 
-
-module.exports = { carImage, Image, usedCarImage }
+module.exports = { carImage, Image, usedCarImage, profileImage }

@@ -73,11 +73,21 @@ exports.createCar = async (req, res) => {
 
 exports.getCar = async (req, res) => {
   try {
-    // Retrieve all cars from the database
-    const cars = await Car.find();
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10;
 
-    // res.status(200).json(cars);
-    res.status(200).json({ message: "all car", status: 200, data: cars });
+    const totalCars = await Car.countDocuments();
+    const totalPages = Math.ceil(totalCars / pageSize);
+
+    const cars = await Car.find()
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+
+    res.status(200).json({
+      message: "all car", status: 200, data: cars,
+      totalPages: totalPages,
+      currentPage: page
+    });
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
   }
@@ -1218,7 +1228,7 @@ exports.newCar1 = async (req, res) => {
         LightFlashing: row.LightFlashing
       };
       let findDataCar = await Car.findOne(carData);
-      if(!findDataCar){
+      if (!findDataCar) {
         data.push(carData);
       }
 
