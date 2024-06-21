@@ -11,25 +11,25 @@ const {
   getCar, getMostComparedCars, newCheck, emiCalculator, getCarbyId, updateCarbyId, bestSelling, upcoming, justLaunchedCar, getJustLaunched, numofReview, deleteCarbyId, newCar, updateCarById, getbestSelling, search, filter, myExcel, allfilter, singleExcel, compareCars, upcomingCars, allDataExcel, getPopularCar, popularCar, highRatedCar, getHighRatedCar, showMostSearchedCars, uploadCarImage
 } = require("../Controller/usedCarController");
 
-const upload = require("../middleware/fileUpload");
-const multer = require('multer');
-const xlsx = require('xlsx');
-const _ = require('lodash');
-const fileUpload = require('express-fileupload');
-router.use(fileUpload());
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, './Controller/');
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.kamesh.xlsx);
-  },
-});
+// const upload = require("../middleware/fileUpload");
+// const multer = require('multer');
+// const xlsx = require('xlsx');
+// const _ = require('lodash');
+// const fileUpload = require('express-fileupload');
+// router.use(fileUpload());
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, './Controller/');
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, file.kamesh.xlsx);
+//   },
+// });
 
 
 
 
-router.post("/add/usedCar/car/create", [authJwt.isAdmin], usedCarImage.array('image'), auth.createUsedCar);
+router.post("/add/usedCar/car/createUsedCar", [authJwt.isAdmin], usedCarImage.array('image'), auth.createUsedCar);
 router.put("/:id/update", [authJwt.isAdmin], usedCarImage.array('image'), auth.updateCar);
 router.post("/:carId/upload-images", usedCarImage.array('image', 250), auth.updateCarImageById)
 router.put('/image/:carId', carImage.array('image'),auth.uploadCarImage)

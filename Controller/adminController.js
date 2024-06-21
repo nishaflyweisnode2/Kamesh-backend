@@ -8,11 +8,12 @@ const bcrypt = require("bcryptjs");
 const Car = require('../Models/carModel');
 const ExcelJS = require('exceljs');
 const nodemailer = require("nodemailer");
-var newOTP = require("otp-generators");
+var newOTP = require("otp-generator");
 const SearchLog = require('../Models/searchLogModel');
 const Review = require('../Models/reviewmodel');
 const Image = require('../Models/imageModel');
 const usedCar = require("../Models/usedCarModel");
+const offer = require('../Models/offerModel');
 
 
 
@@ -1101,5 +1102,186 @@ exports.getRejectCars = async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.status(500).json({ status: 500, message: 'Failed to retrieve Rejected cars', error: error.message });
+    }
+};
+
+exports.addOffer = async (req, res) => {
+    try {
+        // if (!req.body.userId) {
+        //     return res.status(400).json({ status: 400, message: "User ID is required" });
+        // }
+
+        // const vendorData = await User.findOne({ _id: req.body.userId });
+        // if (!vendorData) {
+        //     return res.status(404).json({ status: 404, message: "User not found" });
+        // }
+
+        let obj = {
+            couponCode: req.body.couponCode,
+            title: req.body.title,
+            companyname: req.body.companyname,
+            amount: req.body.amount,
+            expirationDate: req.body.expirationDate,
+            activationDate: req.body.activationDate,
+            status: req.body.status,
+        };
+
+        if (req.body.expirationDate) {
+            const d = new Date(req.body.expirationDate);
+            obj.expirationDate = d.toISOString();
+        }
+
+        if (req.body.activationDate) {
+            const de = new Date(req.body.activationDate);
+            obj.activationDate = de.toISOString();
+        }
+
+        // let couponCode = await reffralCode();
+        // obj.couponCode = couponCode;
+
+
+        const saveStore = await offer(obj).save();
+
+        if (saveStore) {
+            return res.status(200).json({ status: 200, message: 'Offer added successfully', data: saveStore });
+        } else {
+            return res.status(500).json({ status: 500, message: 'Failed to add offer' });
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ status: 500, message: "Server error: " + error.message });
+    }
+};
+exports.listOffer = async (req, res) => {
+    try {
+        let findService = await offer.find({});
+        if (findService.length == 0) {
+            return res.status(404).send({ status: 404, message: "Data not found" });
+        } else {
+            res.json({ status: 200, message: 'offer Data found successfully.', service: findService });
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({ status: 500, message: "Server error" + error.message });
+    }
+};
+exports.getOfferById = async (req, res) => {
+    try {
+        const offerId = req.params.id;
+
+        if (!offerId) {
+            return res.status(400).json({ status: 400, message: "Offer ID is required" });
+        }
+
+        const foundOffer = await offer.findById(offerId);
+
+        if (!foundOffer) {
+            return res.status(404).json({ status: 404, message: "Offer not found" });
+        }
+
+        return res.status(200).json({ status: 200, message: 'Offer found successfully', data: foundOffer });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ status: 500, message: "Server error: " + error.message });
+    }
+};
+exports.updateOffer = async (req, res) => {
+    try {
+        const offerId = req.params.id;
+        const updateData = req.body;
+
+        if (!offerId) {
+            return res.status(400).json({ status: 400, message: "Offer ID is required" });
+        }
+
+        const updatedOffer = await offer.findByIdAndUpdate(offerId, updateData, { new: true });
+
+        if (!updatedOffer) {
+            return res.status(404).json({ status: 404, message: "Offer not found" });
+        }
+
+        return res.status(200).json({ status: 200, message: 'Offer updated successfully', data: updatedOffer });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ status: 500, message: "Server error: " + error.message });
+    }
+};
+exports.deleteOffer = async (req, res) => {
+    try {
+        const offerId = req.params.id;
+
+        if (!offerId) {
+            return res.status(400).json({ status: 400, message: "Offer ID is required" });
+        }
+
+        const deletedOffer = await offer.findByIdAndDelete(offerId);
+
+        if (!deletedOffer) {
+            return res.status(404).json({ status: 404, message: "Offer not found" });
+        }
+
+        return res.status(200).json({ status: 200, message: 'Offer deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ status: 500, message: "Server error: " + error.message });
+    }
+};
+exports.getExpiredOffers = async (req, res) => {
+    try {
+        const currentDate = new Date();
+
+        const expiredOffers = await offer.find({ expirationDate: { $lt: currentDate } });
+
+        if (expiredOffers.length === 0) {
+            return res.status(404).json({ status: 404, message: "No expired offers found" });
+        }
+
+        return res.status(200).json({ status: 200, message: 'Expired offers found successfully', data: expiredOffers });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ status: 500, message: "Server error: " + error.message });
+    }
+};
+
+exports.updateUserRoles = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const {
+            isUsedCars,
+            isUsedCarApprovalList,
+            isCheckCarValuation,
+            isNewCars,
+            isNewsReviews,
+            isCarReport,
+            isAdmin,
+            isFeaturedList,
+            isImages,
+            isVideos,
+            isOffers,
+        } = req.body;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ status: 404, message: 'User not found' });
+        }
+
+        user.isUsedCars = isUsedCars ?? user.isUsedCars;
+        user.isUsedCarApprovalList = isUsedCarApprovalList ?? user.isUsedCarApprovalList;
+        user.isCheckCarValuation = isCheckCarValuation ?? user.isCheckCarValuation;
+        user.isNewCars = isNewCars ?? user.isNewCars;
+        user.isCarReport = isCarReport ?? user.isCarReport;
+        user.isNewsReviews = isNewsReviews ?? user.isNewsReviews;
+        user.isAdmin = isAdmin ?? user.isAdmin;
+        user.isFeaturedList = isFeaturedList ?? user.isFeaturedList;
+        user.isImages = isImages ?? user.isImages;
+        user.isVideos = isVideos ?? user.isVideos;
+        user.isOffers = isOffers ?? user.isOffers;
+
+        const updatedUser = await user.save();
+
+        return res.status(200).json({ status: 200, message: 'User roles updated successfully', data: updatedUser });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ status: 500, message: 'Internal server error', error: error.message });
     }
 };

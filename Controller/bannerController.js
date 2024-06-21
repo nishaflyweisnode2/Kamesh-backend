@@ -73,16 +73,11 @@ exports.updateBanner = async (req, res) => {
       .status(404)
       .json({ message: "Banner Not Found", status: 404, data: {} });
   }
-  upload.single("image")(req, res, async (err) => {
-    if (err) {
-      return res.status(400).json({ msg: err.message });
-    }
-    const fileUrl = req.file ? req.file.path : "";
-    banner.image = fileUrl || banner.image;
-    banner.name = req.body.name;
-    let update = await banner.save();
-    res.status(200).json({ message: "Updated Successfully", data: update });
-  });
+  const fileUrl = req.file ? req.file.path : "";
+  banner.image = fileUrl || banner.image;
+  banner.name = req.body.name;
+  let update = await banner.save();
+  res.status(200).json({ message: "Updated Successfully", data: update });
 };
 
 exports.removeBanner = async (req, res) => {

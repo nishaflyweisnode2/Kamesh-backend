@@ -5,6 +5,10 @@ const mongooseAggregatePaginate = require("mongoose-aggregate-paginate");
 
 const carSchema = new mongoose.Schema(
     {
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+        },
         Brand_name: {
             type: String,
         },
@@ -669,12 +673,10 @@ const carSchema = new mongoose.Schema(
             default: false,
         },
         owner: {
-            type: Boolean,
-            default: false,
+            type: String,
         },
         km: {
-            type: Boolean,
-            default: false,
+            type: String,
         },
     },
 

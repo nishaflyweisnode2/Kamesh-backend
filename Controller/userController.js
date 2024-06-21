@@ -9,6 +9,7 @@ const config = require('config');
 // const multer = require('multer');
 const randomatic = require('randomatic');
 const Review = require('../Models/reviewmodel');
+const Intrested = require('../Models/intrestedModel');
 
 
 const cloudinary = require('cloudinary').v2;
@@ -216,7 +217,7 @@ exports.getUserReviews = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const reviews = await Review.find({ userId: userId });
+    const reviews = await Review.find({ userId: userId }).populate('carId userId');
 
     res.status(200).json({
       status: 200,
@@ -243,7 +244,7 @@ exports.getCarReviews = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const reviews = await Review.find({ carId: carId, userId: userId });
+    const reviews = await Review.find({ carId: carId, /*userId: userId*/ }).populate('carId userId');
 
     res.status(200).json({
       status: 200,
@@ -281,5 +282,132 @@ exports.uploadIdPicture = async (req, res) => {
     return res.status(200).json({ status: 200, message: 'Uploaded successfully', data: updatedUser });
   } catch (error) {
     return res.status(500).json({ message: 'Failed to upload profile picture', error: error.message });
+  }
+};
+
+exports.addIntrestedCar = async (req, res) => {
+  const { name, mobile_number } = req.body;
+  const userId = req.user._id;
+
+  const user = await User.findById(userId);
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  if (!name || !mobile_number) {
+    return res.status(400).json({ error: "Name and mobile number are required" });
+  }
+
+  try {
+    const newInterested = new Intrested({ userId: user._id, name, mobile_number });
+    await newInterested.save();
+    res.status(201).json(newInterested);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+exports.getAllIntrestedInCar = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const interested = await Intrested.find();
+    res.status(200).json(interested);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+exports.getIntrestedInCar = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const interested = await Intrested.find({ userId: userId });
+    res.status(200).json(interested);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+exports.getIntrestedInCarById = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const interested = await Intrested.findById(req.params.id);
+    if (!interested) {
+      return res.status(404).json({ error: "Not Found" });
+    }
+    res.status(200).json(interested);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+exports.updateIntrestedInCar = async (req, res) => {
+  const { name, mobile_number } = req.body;
+  const userId = req.user._id;
+
+  const user = await User.findById(userId);
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  if (!name || !mobile_number) {
+    return res.status(400).json({ error: "Name and mobile number are required" });
+  }
+
+  try {
+    const updatedInterested = await Intrested.findByIdAndUpdate(
+      req.params.id,
+      { name, mobile_number },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedInterested) {
+      return res.status(404).json({ error: "Not Found" });
+    }
+
+    res.status(200).json(updatedInterested);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+exports.deleteIntrestedInCar = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const deletedInterested = await Intrested.findByIdAndDelete(req.params.id);
+
+    if (!deletedInterested) {
+      return res.status(404).json({ error: "Not Found" });
+    }
+
+    res.status(200).json({ message: "Deleted Successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };

@@ -58,6 +58,11 @@ const { log } = require("console");
 exports.createUsedCar = async (req, res) => {
     try {
 
+        const userId = req.user._id;
+        const userData = await User.findOne({ _id: userId });
+        if (!userData) {
+            return res.status(404).send({ status: 404, message: "User not found" });
+        }
         const {
             owner,
             km,
@@ -283,6 +288,7 @@ exports.createUsedCar = async (req, res) => {
         }
 
         const newCar = new usedCar({
+            userId: userId,
             owner,
             km,
             Brand_name,
@@ -506,6 +512,7 @@ exports.createUsedCar = async (req, res) => {
     }
 };
 
+
 exports.updateCar = async (req, res) => {
     try {
         const carId = req.params.id;
@@ -579,7 +586,7 @@ exports.getCar = async (req, res) => {
 
         const cars = await usedCar.find()
             .skip((page - 1) * pageSize)
-            .limit(pageSize);
+            .limit(pageSize).populate('userId');
 
         res.status(200).json({
             message: "Cars fetched successfully",
@@ -711,11 +718,16 @@ exports.filter = async (req, res, next) => {
     try {
         const minPrice = req.query.minPrice || 0;
         const maxPrice = req.query.maxPrice || Infinity;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
 
-        // Find cars within the specified price range
+        const skip = (page - 1) * limit;
+
         const filteredCars = await usedCar.find({
             ExShowroomPrice: { $gte: minPrice, $lte: maxPrice },
-        });
+        }).skip(skip)
+            .limit(limit);
+
         console.log(filteredCars);
         res
             .status(200)
@@ -743,6 +755,8 @@ exports.allfilter = async (req, res, next) => {
             sort,
             FuelType,
             bodyType,
+            page,
+            limit,
         } = req.query;
 
         const filter = {};
@@ -771,6 +785,12 @@ exports.allfilter = async (req, res, next) => {
             filter.bodyType = bodyType;
         }
 
+        if (nearByCities_price) {
+            const cityFilter = [nearByCities_price];
+            filter['nearByCities_price.city'] = { $in: cityFilter };
+            console.log("cityFilter", cityFilter);
+        }
+        
         // if (color) {
         //   filter.color_options = color;
         // }
@@ -797,7 +817,17 @@ exports.allfilter = async (req, res, next) => {
         } else if (sort === "highToLow") {
             sortOptions.ExShowroomPrice = -1;
         }
-        const filteredCars = await usedCar.find(filter).sort(sortOptions).exec();
+
+        const pageNumber = parseInt(page) || 1;
+        const itemsPerPage = parseInt(limit) || 10;
+        const skip = (pageNumber - 1) * itemsPerPage;
+
+        const filteredCars = await usedCar.find(filter)
+            .sort(sortOptions)
+            .skip(skip)
+            .limit(itemsPerPage)
+            .exec();
+
         const carCount = await usedCar.countDocuments(filter);
         res.status(200).json({
             message: "result",

@@ -159,10 +159,16 @@ exports.search = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const { search, status, page, limit } = req.query;
+    const { search, status, page, limit, isTopModelCar } = req.query;
+
 
     let query = {};
-
+    console.log(isTopModelCar)
+    if(isTopModelCar == 'true'){
+      query = { isTopModelCar: true };
+    }else{
+      query = {};
+    }
     if (search) {
       query.$or = [
         { "Transmission": { $regex: search, $options: "i" } },
@@ -172,7 +178,8 @@ exports.search = async (req, res) => {
         { "bodyType": { $regex: search, $options: "i" } },
         { "fuelType": { $regex: search, $options: "i" } },
         { "ModelName": { $regex: search, $options: "i" } },
-        { "Transmission": { $regex: search, $options: "i" } }
+        { "Transmission": { $regex: search, $options: "i" } },
+        { "Display_name": { $regex: search, $options: "i" } },
       ];
     }
 
@@ -185,7 +192,6 @@ exports.search = async (req, res) => {
       limit: Number(limit) || 1005,
       sort: { createdAt: -1 }
     };
-
     let data = await Car.paginate(query, options);
 
     for (const car of data.docs) {
@@ -209,11 +215,15 @@ exports.filter = async (req, res, next) => {
   try {
     const minPrice = req.query.minPrice || 0;
     const maxPrice = req.query.maxPrice || Infinity;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
 
-    // Find cars within the specified price range
+    const skip = (page - 1) * limit;
+
     const filteredCars = await Car.find({
       ExShowroomPrice: { $gte: minPrice, $lte: maxPrice },
-    });
+    }).skip(skip)
+      .limit(limit);
     console.log(filteredCars);
     res
       .status(200)
@@ -241,6 +251,9 @@ exports.allfilter = async (req, res, next) => {
       sort,
       FuelType,
       bodyType,
+      page,
+      limit,
+      nearByCities_price
     } = req.query;
 
     const filter = {};
@@ -268,6 +281,11 @@ exports.allfilter = async (req, res, next) => {
     if (bodyType) {
       filter.bodyType = bodyType;
     }
+    if (nearByCities_price) {
+      const cityFilter = [nearByCities_price];
+      filter['nearByCities_price.city'] = { $in: cityFilter };
+      console.log("cityFilter", cityFilter);
+    }
 
     // if (color) {
     //   filter.color_options = color;
@@ -281,7 +299,7 @@ exports.allfilter = async (req, res, next) => {
     if (color) {
       filter.color_options = { $exists: true };
     }
-    console.log("//*", color);
+
     if (carId) {
       filter._id = carId;
     }
@@ -295,7 +313,17 @@ exports.allfilter = async (req, res, next) => {
     } else if (sort === "highToLow") {
       sortOptions.ExShowroomPrice = -1;
     }
-    const filteredCars = await Car.find(filter).sort(sortOptions).exec();
+
+    const pageNumber = parseInt(page) || 1;
+    const itemsPerPage = parseInt(limit) || 10;
+    const skip = (pageNumber - 1) * itemsPerPage;
+
+    const filteredCars = await Car.find(filter)
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(itemsPerPage)
+      .exec();
+
     const carCount = await Car.countDocuments(filter);
     res.status(200).json({
       message: "result",
@@ -931,7 +959,8 @@ exports.newCar = async (req, res) => {
         MCD: row.MCD,
         ExtendedWarranty: row.ExtendedWarranty,
         EmergencyBrake: row.EmergencyBrake,
-        LightFlashing: row.LightFlashing
+        LightFlashing: row.LightFlashing,
+        isTopModelCar: row.isTopModelCar
       };
       // console.log("carData", carData);
       data.push(carData);
@@ -1225,7 +1254,8 @@ exports.newCar1 = async (req, res) => {
         MCD: row.MCD,
         ExtendedWarranty: row.ExtendedWarranty,
         EmergencyBrake: row.EmergencyBrake,
-        LightFlashing: row.LightFlashing
+        LightFlashing: row.LightFlashing,
+        isTopModelCar: row.isTopModelCar
       };
       let findDataCar = await Car.findOne(carData);
       if (!findDataCar) {
@@ -1243,7 +1273,7 @@ exports.newCar1 = async (req, res) => {
   }
 };
 
-exports.updateCarById = async (req, res) => {
+exports.updateCarById1 = async (req, res) => {
   try {
     const { carId } = req.params;
     const excelFile = req.files.excelFile;
@@ -1263,10 +1293,278 @@ exports.updateCarById = async (req, res) => {
       return res.status(404).json({ error: "Car not found" });
     }
 
-    let carData;
+    // let carData;
+    // for (const row of sheetData) {
+    //   carData = {
+    //     Brand_name: row.Brand_name,
+    //     Car_link: row.Car_link,
+    //     State: row.State,
+    //     Location: row.Location,
+    //     cityId: row.cityId,
+    //     Display_name: row.Display_name,
+    //     ModelId: row.ModelId,
+    //     Make: row.Make,
+    //     ModelName: row.ModelName,
+    //     Launched_date: row.Launched_date,
+    //     varient_link: row.varient_link,
+    //     price_breakup_url: row.price_breakup_url,
+    //     Varient_name: row.Varient_name,
+    //     Varient_id: row.Varient_id,
+    //     EMI: row.EMI,
+    //     ExShowroomPrice: row.ExShowroomPrice,
+    //     SKU: row.SKU,
+    //     MPN: row.MPN,
+    //     bodyType: row.bodyType,
+    //     fuelType: row.fuelType,
+    //     fuelConsumption: row.fuelConsumption,
+    //     summery_description: row.summery_description,
+    //     color_options: row.color_options,
+    //     color_options_with_images: row.color_options_with_images,
+    //     vehicleTransmission: row.vehicleTransmission,
+    //     driveWheelConfiguration: row.driveWheelConfiguration,
+    //     rating: row.rating,
+    //     reviewCount: row.reviewCount,
+    //     totalRatings: row.totalRatings,
+    //     Total_image_count: row.Total_image_count,
+    //     car_images: [{
+    //       url: row.car_images,
+    //     }],
+    //     review_text: [{
+    //       username: row.username,
+    //       review: row.review_text,
+    //     }],
+    //     brochure_link: row.brochure_link,
+    //     Upcoming_Cars: row.Upcoming_Cars,
+    //     video_link: row.video_link,
+    //     sponsored_cars: row.sponsored_cars,
+    //     nearByCities_price: row.nearByCities_price,
+    //     nearByArea_price: row.nearByArea_price,
+    //     popularCities_price: row.popularCities_price,
+    //     minPrice: row.minPrice,
+    //     maxPrice: row.maxPrice,
+    //     RTOCorporate: row.RTOCorporate,
+    //     RTO: row.RTO,
+    //     AMC: row.AMC,
+    //     Insurance: row.Insurance,
+    //     HypothecationCharges: row.HypothecationCharges,
+    //     FASTag: row.FASTag,
+    //     ExtendedWarranty: row.ExtendedWarranty,
+    //     AccessoriesPackage: row.AccessoriesPackage,
+    //     LoyaltyCard: row.LoyaltyCard,
+    //     TopSpeed: row.TopSpeed,
+    //     Acceleration: row.Acceleration,
+    //     City: row.City,
+    //     Mileage: row.Mileage,
+    //     Highway: row.Highway,
+    //     Range: row.Range,
+    //     Engine: row.Engine,
+    //     EngineType: row.EngineType,
+    //     FuelType: row.FuelType,
+    //     MaxPower: row.MaxPower,
+    //     MaxTorque: row.MaxTorque,
+    //     Performance: row.Performance,
+    //     ElectricMotor: row.ElectricMotor,
+    //     MaxMotor: row.MaxMotor,
+    //     DrivingRange: row.DrivingRange,
+    //     Drivetrain: row.Drivetrain,
+    //     Transmission: row.Transmission,
+    //     EmissionStandard: row.EmissionStandard,
+    //     Turbocharger: row.Turbocharger,
+    //     Battery: row.Battery,
+    //     BatteryCharging: row.BatteryCharging,
+    //     ElectricMotor: row.ElectricMotor,
+    //     Others: row.Others,
+    //     AlternateFuel: row.AlternateFuel,
+    //     Length: row.Length,
+    //     Width: row.Width,
+    //     Height: row.Height,
+    //     Wheelbase: row.Wheelbase,
+    //     GroundClearance: row.GroundClearance,
+    //     KerbWeight: row.KerbWeight,
+    //     Doors: row.Doors,
+    //     SeatingCapacity: row.SeatingCapacity,
+    //     NoofRows: row.NoofRows,
+    //     Bootspace: row.Bootspace,
+    //     FuelTankCapacity: row.FuelTankCapacity,
+    //     FourWheelSteering: row.FourWheelSteering,
+    //     FrontSuspension: row.FrontSuspension,
+    //     RearSuspension: row.RearSuspension,
+    //     FrontBrake: row.FrontBrake,
+    //     RearBrakeType: row.RearBrakeType,
+    //     MinimumTurningRadius: row.MinimumTurningRadius,
+    //     SteeringTypeWheels: row.SteeringTypeWheels,
+    //     SpareWheel: row.SpareWheel,
+    //     FrontTyres: row.FrontTyres,
+    //     RearTyres: row.RearTyres,
+    //     Overspeed: row.Overspeed,
+    //     PunctureRepairKit: row.PunctureRepairKit,
+    //     NCAPRating: row.NCAPRating,
+    //     Airbags: row.Airbags,
+    //     RearMiddleThreePointseatbelt: row.RearMiddleThreePointseatbelt,
+    //     TyrePressureMonitoringSystem: row.TyrePressureMonitoringSystem,
+    //     Seat: row.Seat,
+    //     AntiLock: row.AntiLock,
+    //     Electronic: row.Electronic,
+    //     BrakeAssist: row.BrakeAssist,
+    //     ElectronicStabilityProgram: row.ElectronicStabilityProgram,
+    //     HillHoldControl: row.HillHoldControl,
+    //     EngineImmobiliser: row.EngineImmobiliser,
+    //     CentralLocking: row.CentralLocking,
+    //     SpeedSensingDoor: row.SpeedSensingDoor,
+    //     Lock: row.Lock,
+    //     SafetyLock: row.SafetyLock,
+    //     AirConditioner: row.AirConditioner,
+    //     FrontAC: row.FrontAC,
+    //     Heater: row.Heater,
+    //     Vanity: row.Vanity,
+    //     Mirrors: row.Mirrors,
+    //     Cabin: row.Cabin,
+    //     AntiglareMirrors: row.AntiglareMirrors,
+    //     ParkingAssist: row.ParkingAssist,
+    //     ParkingSensors: row.ParkingSensors,
+    //     Headlight: row.Headlight,
+    //     Keyless: row.Keyless,
+    //     Start: row.Start,
+    //     SteeringAdjustment: row.SteeringAdjustment,
+    //     PowerOutlets: row.PowerOutlets,
+    //     FindMyCar: row.FindMyCar,
+    //     CheckVehicleStatus: row.CheckVehicleStatus,
+    //     Geofence: row.Geofence,
+    //     RemoteAC: row.RemoteAC,
+    //     CarLock: row.CarLock,
+    //     CarLightFlashing: row.CarLightFlashing,
+    //     Drive: row.Drive,
+    //     FrontPassenger: row.FrontPassenger,
+    //     SeatUpholstery: row.SeatUpholstery,
+    //     LeatherwrappedSteeringWheel: row.LeatherwrappedSteeringWheel,
+    //     RearPassengerSeat: row.RearPassengerSeat,
+    //     Interiors: row.Interiors,
+    //     InteriorColours: row.InteriorColours,
+    //     RearArmrestFolding: row.RearArmrestFolding,
+    //     RearSeat: row.RearSeat,
+    //     SplitRear: row.SplitRear,
+    //     FrontSeatbackPockets: row.FrontSeatbackPockets,
+    //     Headrests: row.Headrests,
+    //     CupHolders: row.CupHolders,
+    //     CooledGlovebox: row.CooledGlovebox,
+    //     ORVMColour: row.ORVMColour,
+    //     ScuffPlates: row.ScuffPlates,
+    //     PowerWindows: row.PowerWindows,
+    //     OneTouchDown: row.OneTouchDown,
+    //     OneTouchUp: row.OneTouchUp,
+    //     AdjustableORVMs: row.AdjustableORVMs,
+    //     TurnIndicators: row.TurnIndicators,
+    //     RearDefogger: row.RearDefogger,
+    //     RearWiper: row.RearWiper,
+    //     ExteriorDoor: row.ExteriorDoor,
+    //     RainsensingWipers: row.RainsensingWipers,
+    //     InteriorDoorHandles: row.InteriorDoorHandles,
+    //     DoorPockets: row.DoorPockets,
+    //     BootlidOpener: row.BootlidOpener,
+    //     RoofmountedAntenna: row.RoofmountedAntenna,
+    //     BodycolouredBumpers: row.BodycolouredBumpers,
+    //     BodyKitRub: row.BodyKitRub,
+    //     Headlights: row.Headlights,
+    //     AutomaticHeadlamps: row.AutomaticHeadlamps,
+    //     FollowMeHomeHeadlamps: row.FollowMeHomeHeadlamps,
+    //     Taillights: row.Taillights,
+    //     DaytimeRunningLights: row.DaytimeRunningLights,
+    //     FogLights: row.FogLights,
+    //     PuddleLamps: row.PuddleLamps,
+    //     CabinLamps: row.CabinLamps,
+    //     HeadlightHeightAdjuster: row.HeadlightHeightAdjuster,
+    //     InstantaneousConsumption: row.InstantaneousConsumption,
+    //     InstrumentCluster: row.InstrumentCluster,
+    //     TripMeter: row.TripMeter,
+    //     AverageFuelConsumption: row.AverageFuelConsumption,
+    //     AverageSpeed: row.AverageSpeed,
+    //     DistancetoEmptyClock: row.DistancetoEmptyClock,
+    //     LowFuelLevelWarning: row.LowFuelLevelWarning,
+    //     DoorAjarWarning: row.DoorAjarWarning,
+    //     AdjustableClusterBrightness: row.AdjustableClusterBrightness,
+    //     GearIndicator: row.GearIndicator,
+    //     ShiftIndicator: row.ShiftIndicator,
+    //     Tachometer: row.Tachometer,
+    //     SmartConnectivity: row.SmartConnectivity,
+    //     Display: row.Display,
+    //     Touchscreen: row.Touchscreen,
+    //     SizeIntegratedMusicSystem: row.SizeIntegratedMusicSystem,
+    //     Speakers: row.Speakers,
+    //     Steeringmounted: row.Steeringmounted,
+    //     controls: row.controls,
+    //     VoiceCommand: row.VoiceCommand,
+    //     GPSNavigationSystem: row.GPSNavigationSystem,
+    //     BluetoothCompatibility: row.BluetoothCompatibility,
+    //     AUXCompatibility: row.AUXCompatibility,
+    //     AMRadio: row.AMRadio,
+    //     USBCompatibility: row.USBCompatibility,
+    //     HeadUnitSize: row.HeadUnitSize,
+    //     iPodCompatibility: row.iPodCompatibility,
+    //     BatteryWarranty: row.BatteryWarranty,
+    //     Warranty: row.Warranty,
+    //     MCD: row.MCD,
+    //     ExtendedWarranty: row.ExtendedWarranty,
+    //     EmergencyBrake: row.EmergencyBrake,
+    //     LightFlashing: row.LightFlashing
+    //   };
+    // }
+    const data = [];
+
     for (const row of sheetData) {
-      carData = {
+      let carImageURLs;
+      if (row.car_images != (null || undefined)) {
+        carImageURLs = row.car_images.split("|");
+      } else {
+        carImageURLs = null;
+      }
+      const carImages = [];
+      if (carImageURLs != (null || undefined)) {
+        if (carImageURLs.length > 0) {
+          for (const url of carImageURLs) {
+            carImages.push({ url });
+          }
+        }
+      }
+      let colorOptionsArray;
+      if (row.color_options != (null || undefined)) {
+        colorOptionsArray = row.color_options.split("|").map(option => option.trim());
+      } else {
+        colorOptionsArray = null;
+      }
+      console.log("colorOptionsArray", colorOptionsArray);
+      let colorOptionsWithImagesArray;
+      if (row.color_options_with_images) {
+        colorOptionsWithImagesArray = row.color_options_with_images.split("|").map(option => {
+          const parts = option.split(":");
+          const name = parts[0].trim();
+          const url = parts.slice(1).join(":").trim();
+          return { name, url };
+        });
+      }
+
+      let cityPricesArray;
+      if (row.nearByCities_price) {
+        cityPricesArray = row.nearByCities_price.split("|").map(cityPrice => {
+          const [city, price] = cityPrice.split(":").map(item => item.trim());
+          return { city, price };
+        });
+      }
+
+      let popularCityPricesArray;
+      if (row.popularCities_price) {
+        popularCityPricesArray = row.popularCities_price.split("|").map(cityPrice => {
+          const [city, price] = cityPrice.split(":").map(item => item.trim());
+          return { city, price };
+        });
+      }
+
+      console.log("popularCityPricesArray", popularCityPricesArray);
+      console.log("row.popularCities_price", row.popularCities_price);
+
+      const carData = {
         Brand_name: row.Brand_name,
+        Brand_link: row.Brand_link,
+        Car_first_link: row.Car_first_link,
         Car_link: row.Car_link,
         State: row.State,
         Location: row.Location,
@@ -1288,17 +1586,18 @@ exports.updateCarById = async (req, res) => {
         fuelType: row.fuelType,
         fuelConsumption: row.fuelConsumption,
         summery_description: row.summery_description,
-        color_options: row.color_options,
-        color_options_with_images: row.color_options_with_images,
+        color_options: colorOptionsArray,
+        color_options_with_images: colorOptionsWithImagesArray,
         vehicleTransmission: row.vehicleTransmission,
         driveWheelConfiguration: row.driveWheelConfiguration,
         rating: row.rating,
         reviewCount: row.reviewCount,
         totalRatings: row.totalRatings,
         Total_image_count: row.Total_image_count,
-        car_images: [{
-          url: row.car_images,
-        }],
+        // car_images: [{
+        //   url: carImages,
+        // }],
+        car_images: carImages,
         review_text: [{
           username: row.username,
           review: row.review_text,
@@ -1307,9 +1606,9 @@ exports.updateCarById = async (req, res) => {
         Upcoming_Cars: row.Upcoming_Cars,
         video_link: row.video_link,
         sponsored_cars: row.sponsored_cars,
-        nearByCities_price: row.nearByCities_price,
+        nearByCities_price: cityPricesArray,
         nearByArea_price: row.nearByArea_price,
-        popularCities_price: row.popularCities_price,
+        popularCities_price: popularCityPricesArray,
         minPrice: row.minPrice,
         maxPrice: row.maxPrice,
         RTOCorporate: row.RTOCorporate,
@@ -1475,14 +1774,317 @@ exports.updateCarById = async (req, res) => {
         MCD: row.MCD,
         ExtendedWarranty: row.ExtendedWarranty,
         EmergencyBrake: row.EmergencyBrake,
-        LightFlashing: row.LightFlashing
+        LightFlashing: row.LightFlashing,
+        isTopModelCar: row.isTopModelCar
       };
+      // console.log("carData", carData);
+      data.push(carData);
     }
-    console.log("carData", carData);
-    const data = await Car.findByIdAndUpdate({ _id: carToUpdate._id }, { $set: carData }, { new: true });
-    console.log("carToUpdate", data);
+    const carData = await Car.findByIdAndUpdate({ _id: carToUpdate._id }, { $set: data }, { new: true });
 
-    res.json({ message: "Car updated successfully", updatedCar: data });
+    res.json({ message: "Car updated successfully", updatedCar: carData });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.updateCarById = async (req, res) => {
+  try {
+    const { carId } = req.params;
+    const excelFile = req.files.excelFile;
+
+    if (!excelFile) {
+      return res.status(400).json({ error: "Excel file not provided" });
+    }
+
+    const fileBuffer = excelFile.data;
+    const workbook = xlsx.read(fileBuffer, { type: "buffer" });
+    const sheetName = workbook.SheetNames[0];
+    const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+    const carToUpdate = await Car.findById(carId);
+
+    if (!carToUpdate) {
+      return res.status(404).json({ error: "Car not found" });
+    }
+    const data = [];
+
+    for (const row of sheetData) {
+      let carImageURLs;
+      if (row.car_images != (null || undefined)) {
+        carImageURLs = row.car_images.split("|");
+      } else {
+        carImageURLs = null;
+      }
+      const carImages = [];
+      if (carImageURLs != (null || undefined)) {
+        if (carImageURLs.length > 0) {
+          for (const url of carImageURLs) {
+            carImages.push({ url });
+          }
+        }
+      }
+      let colorOptionsArray;
+      if (row.color_options != (null || undefined)) {
+        colorOptionsArray = row.color_options.split("|").map(option => option.trim());
+      } else {
+        colorOptionsArray = null;
+      }
+      console.log("colorOptionsArray", colorOptionsArray);
+      let colorOptionsWithImagesArray;
+      if (row.color_options_with_images) {
+        colorOptionsWithImagesArray = row.color_options_with_images.split("|").map(option => {
+          const parts = option.split(":");
+          const name = parts[0].trim();
+          const url = parts.slice(1).join(":").trim();
+          return { name, url };
+        });
+      }
+
+      let cityPricesArray;
+      if (row.nearByCities_price) {
+        cityPricesArray = row.nearByCities_price.split("|").map(cityPrice => {
+          const [city, price] = cityPrice.split(":").map(item => item.trim());
+          return { city, price };
+        });
+      }
+
+      let popularCityPricesArray;
+      if (row.popularCities_price) {
+        popularCityPricesArray = row.popularCities_price.split("|").map(cityPrice => {
+          const [city, price] = cityPrice.split(":").map(item => item.trim());
+          return { city, price };
+        });
+      }
+
+      console.log("popularCityPricesArray", popularCityPricesArray);
+      console.log("row.popularCities_price", row.popularCities_price);
+
+      const carData = {
+        Brand_name: row.Brand_name,
+        Brand_link: row.Brand_link,
+        Car_first_link: row.Car_first_link,
+        Car_link: row.Car_link,
+        State: row.State,
+        Location: row.Location,
+        cityId: row.cityId,
+        Display_name: row.Display_name,
+        ModelId: row.ModelId,
+        Make: row.Make,
+        ModelName: row.ModelName,
+        Launched_date: row.Launched_date,
+        varient_link: row.varient_link,
+        price_breakup_url: row.price_breakup_url,
+        Varient_name: row.Varient_name,
+        Varient_id: row.Varient_id,
+        EMI: row.EMI,
+        ExShowroomPrice: row.ExShowroomPrice,
+        SKU: row.SKU,
+        MPN: row.MPN,
+        bodyType: row.bodyType,
+        fuelType: row.fuelType,
+        fuelConsumption: row.fuelConsumption,
+        summery_description: row.summery_description,
+        color_options: colorOptionsArray,
+        color_options_with_images: colorOptionsWithImagesArray,
+        vehicleTransmission: row.vehicleTransmission,
+        driveWheelConfiguration: row.driveWheelConfiguration,
+        rating: row.rating,
+        reviewCount: row.reviewCount,
+        totalRatings: row.totalRatings,
+        Total_image_count: row.Total_image_count,
+        // car_images: [{
+        //   url: carImages,
+        // }],
+        car_images: carImages,
+        review_text: [{
+          username: row.username,
+          review: row.review_text,
+        }],
+        brochure_link: row.brochure_link,
+        Upcoming_Cars: row.Upcoming_Cars,
+        video_link: row.video_link,
+        sponsored_cars: row.sponsored_cars,
+        nearByCities_price: cityPricesArray,
+        nearByArea_price: row.nearByArea_price,
+        popularCities_price: popularCityPricesArray,
+        minPrice: row.minPrice,
+        maxPrice: row.maxPrice,
+        RTOCorporate: row.RTOCorporate,
+        RTO: row.RTO,
+        AMC: row.AMC,
+        Insurance: row.Insurance,
+        HypothecationCharges: row.HypothecationCharges,
+        FASTag: row.FASTag,
+        ExtendedWarranty: row.ExtendedWarranty,
+        AccessoriesPackage: row.AccessoriesPackage,
+        LoyaltyCard: row.LoyaltyCard,
+        TopSpeed: row.TopSpeed,
+        Acceleration: row.Acceleration,
+        City: row.City,
+        Mileage: row.Mileage,
+        Highway: row.Highway,
+        Range: row.Range,
+        Engine: row.Engine,
+        EngineType: row.EngineType,
+        FuelType: row.FuelType,
+        MaxPower: row.MaxPower,
+        MaxTorque: row.MaxTorque,
+        Performance: row.Performance,
+        ElectricMotor: row.ElectricMotor,
+        MaxMotor: row.MaxMotor,
+        DrivingRange: row.DrivingRange,
+        Drivetrain: row.Drivetrain,
+        Transmission: row.Transmission,
+        EmissionStandard: row.EmissionStandard,
+        Turbocharger: row.Turbocharger,
+        Battery: row.Battery,
+        BatteryCharging: row.BatteryCharging,
+        ElectricMotor: row.ElectricMotor,
+        Others: row.Others,
+        AlternateFuel: row.AlternateFuel,
+        Length: row.Length,
+        Width: row.Width,
+        Height: row.Height,
+        Wheelbase: row.Wheelbase,
+        GroundClearance: row.GroundClearance,
+        KerbWeight: row.KerbWeight,
+        Doors: row.Doors,
+        SeatingCapacity: row.SeatingCapacity,
+        NoofRows: row.NoofRows,
+        Bootspace: row.Bootspace,
+        FuelTankCapacity: row.FuelTankCapacity,
+        FourWheelSteering: row.FourWheelSteering,
+        FrontSuspension: row.FrontSuspension,
+        RearSuspension: row.RearSuspension,
+        FrontBrake: row.FrontBrake,
+        RearBrakeType: row.RearBrakeType,
+        MinimumTurningRadius: row.MinimumTurningRadius,
+        SteeringTypeWheels: row.SteeringTypeWheels,
+        SpareWheel: row.SpareWheel,
+        FrontTyres: row.FrontTyres,
+        RearTyres: row.RearTyres,
+        Overspeed: row.Overspeed,
+        PunctureRepairKit: row.PunctureRepairKit,
+        NCAPRating: row.NCAPRating,
+        Airbags: row.Airbags,
+        RearMiddleThreePointseatbelt: row.RearMiddleThreePointseatbelt,
+        TyrePressureMonitoringSystem: row.TyrePressureMonitoringSystem,
+        Seat: row.Seat,
+        AntiLock: row.AntiLock,
+        Electronic: row.Electronic,
+        BrakeAssist: row.BrakeAssist,
+        ElectronicStabilityProgram: row.ElectronicStabilityProgram,
+        HillHoldControl: row.HillHoldControl,
+        EngineImmobiliser: row.EngineImmobiliser,
+        CentralLocking: row.CentralLocking,
+        SpeedSensingDoor: row.SpeedSensingDoor,
+        Lock: row.Lock,
+        SafetyLock: row.SafetyLock,
+        AirConditioner: row.AirConditioner,
+        FrontAC: row.FrontAC,
+        Heater: row.Heater,
+        Vanity: row.Vanity,
+        Mirrors: row.Mirrors,
+        Cabin: row.Cabin,
+        AntiglareMirrors: row.AntiglareMirrors,
+        ParkingAssist: row.ParkingAssist,
+        ParkingSensors: row.ParkingSensors,
+        Headlight: row.Headlight,
+        Keyless: row.Keyless,
+        Start: row.Start,
+        SteeringAdjustment: row.SteeringAdjustment,
+        PowerOutlets: row.PowerOutlets,
+        FindMyCar: row.FindMyCar,
+        CheckVehicleStatus: row.CheckVehicleStatus,
+        Geofence: row.Geofence,
+        RemoteAC: row.RemoteAC,
+        CarLock: row.CarLock,
+        CarLightFlashing: row.CarLightFlashing,
+        Drive: row.Drive,
+        FrontPassenger: row.FrontPassenger,
+        SeatUpholstery: row.SeatUpholstery,
+        LeatherwrappedSteeringWheel: row.LeatherwrappedSteeringWheel,
+        RearPassengerSeat: row.RearPassengerSeat,
+        Interiors: row.Interiors,
+        InteriorColours: row.InteriorColours,
+        RearArmrestFolding: row.RearArmrestFolding,
+        RearSeat: row.RearSeat,
+        SplitRear: row.SplitRear,
+        FrontSeatbackPockets: row.FrontSeatbackPockets,
+        Headrests: row.Headrests,
+        CupHolders: row.CupHolders,
+        CooledGlovebox: row.CooledGlovebox,
+        ORVMColour: row.ORVMColour,
+        ScuffPlates: row.ScuffPlates,
+        PowerWindows: row.PowerWindows,
+        OneTouchDown: row.OneTouchDown,
+        OneTouchUp: row.OneTouchUp,
+        AdjustableORVMs: row.AdjustableORVMs,
+        TurnIndicators: row.TurnIndicators,
+        RearDefogger: row.RearDefogger,
+        RearWiper: row.RearWiper,
+        ExteriorDoor: row.ExteriorDoor,
+        RainsensingWipers: row.RainsensingWipers,
+        InteriorDoorHandles: row.InteriorDoorHandles,
+        DoorPockets: row.DoorPockets,
+        BootlidOpener: row.BootlidOpener,
+        RoofmountedAntenna: row.RoofmountedAntenna,
+        BodycolouredBumpers: row.BodycolouredBumpers,
+        BodyKitRub: row.BodyKitRub,
+        Headlights: row.Headlights,
+        AutomaticHeadlamps: row.AutomaticHeadlamps,
+        FollowMeHomeHeadlamps: row.FollowMeHomeHeadlamps,
+        Taillights: row.Taillights,
+        DaytimeRunningLights: row.DaytimeRunningLights,
+        FogLights: row.FogLights,
+        PuddleLamps: row.PuddleLamps,
+        CabinLamps: row.CabinLamps,
+        HeadlightHeightAdjuster: row.HeadlightHeightAdjuster,
+        InstantaneousConsumption: row.InstantaneousConsumption,
+        InstrumentCluster: row.InstrumentCluster,
+        TripMeter: row.TripMeter,
+        AverageFuelConsumption: row.AverageFuelConsumption,
+        AverageSpeed: row.AverageSpeed,
+        DistancetoEmptyClock: row.DistancetoEmptyClock,
+        LowFuelLevelWarning: row.LowFuelLevelWarning,
+        DoorAjarWarning: row.DoorAjarWarning,
+        AdjustableClusterBrightness: row.AdjustableClusterBrightness,
+        GearIndicator: row.GearIndicator,
+        ShiftIndicator: row.ShiftIndicator,
+        Tachometer: row.Tachometer,
+        SmartConnectivity: row.SmartConnectivity,
+        Display: row.Display,
+        Touchscreen: row.Touchscreen,
+        SizeIntegratedMusicSystem: row.SizeIntegratedMusicSystem,
+        Speakers: row.Speakers,
+        Steeringmounted: row.Steeringmounted,
+        controls: row.controls,
+        VoiceCommand: row.VoiceCommand,
+        GPSNavigationSystem: row.GPSNavigationSystem,
+        BluetoothCompatibility: row.BluetoothCompatibility,
+        AUXCompatibility: row.AUXCompatibility,
+        AMRadio: row.AMRadio,
+        USBCompatibility: row.USBCompatibility,
+        HeadUnitSize: row.HeadUnitSize,
+        iPodCompatibility: row.iPodCompatibility,
+        BatteryWarranty: row.BatteryWarranty,
+        Warranty: row.Warranty,
+        MCD: row.MCD,
+        ExtendedWarranty: row.ExtendedWarranty,
+        EmergencyBrake: row.EmergencyBrake,
+        LightFlashing: row.LightFlashing,
+        isTopModelCar: row.isTopModelCar
+      };
+      // console.log("carData", carData);
+      data.push(carData);
+    }
+    // const carData = await Car.findByIdAndUpdate({ _id: carToUpdate._id }, { $set: data }, { new: true });
+    const carData = await Car.findByIdAndUpdate(carToUpdate._id, { ...data[0] }, { new: true });
+
+
+    res.json({ message: "Car updated successfully", updatedCar: carData });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });

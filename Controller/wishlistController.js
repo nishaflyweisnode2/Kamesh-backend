@@ -85,7 +85,7 @@ exports.removeWishlist = async (req, res) => {
       const userId = req.user._id; // Assuming you have user authentication middleware
   
       // Find the user's wishlist and populate it with product details
-      const wishlist = await Wishlist.findOne({ user: userId }).populate('products');
+      const wishlist = await Wishlist.findOne({ user: userId }).populate('products user');
   
       if (!wishlist) {
         return res.status(404).json({ message: 'Wishlist not found for this user' });

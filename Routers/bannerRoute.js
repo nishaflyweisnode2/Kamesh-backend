@@ -30,7 +30,7 @@ router.post("/:name", upload.single("image"), [bannerControllers.AddBanner]);
 router.get("/", [bannerControllers.getBanner]);
 router.route("/get/:id").get(bannerControllers.getbannerbyId);
 
-router.put("/update/:id", [bannerControllers.updateBanner]);
+router.put("/update/:id", upload.single("image"),[bannerControllers.updateBanner]);
 
 router.delete("/:id", [bannerControllers.removeBanner]);
 

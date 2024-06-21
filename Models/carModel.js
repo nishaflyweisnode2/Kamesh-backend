@@ -1170,6 +1170,12 @@ const carSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    goodThings: {
+      type: String,
+    },
+    badThings: {
+      type: String,
+    },
   },
 
   {
