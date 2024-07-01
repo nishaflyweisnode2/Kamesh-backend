@@ -1,5 +1,7 @@
 const bodyType = require("../Models/bodyTypeModel");
 const Car = require("../Models/carModel");
+const City = require("../Models/cityModel");
+const DisplayName = require("../Models/displaynameModel");
 
 const express = require('express');
 const router = express.Router();
@@ -90,8 +92,6 @@ exports.updatebodyTypebyId = async (req, res) => {
   })
 };
 
-
-
 exports.deletebodyTypebyId = async (req, res) => {
   console.log("hi");
   try {
@@ -111,7 +111,6 @@ exports.deletebodyTypebyId = async (req, res) => {
   }
 };
 
-
 exports.getBodyData = async (req, res) => {
   try {
     const bodyTypes = await Car.aggregate([
@@ -128,6 +127,118 @@ exports.getBodyData = async (req, res) => {
     await bodyType.insertMany(newBody);
 
     res.status(200).json({ status: 200, data: { bodyType: newBody } });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+exports.getAllCity = async (req, res) => {
+
+  try {
+    // Fetch all brands from the database
+    const bodyTypes = await City.find();
+
+    res.json({ data: bodyTypes });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+exports.getCitybyId = async (req, res) => {
+
+  try {
+    const CityId = req.params.id;
+
+    // Fetch the brand by its ID from the database
+    const bodyTypes = await City.findById(CityId);
+
+    if (!bodyTypes) {
+      return res.status(404).json({ message: 'bodyType not found' });
+    }
+
+    res.json({ data: bodyTypes });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+exports.getCityData = async (req, res) => {
+  try {
+    const cityDatas = await Car.aggregate([
+      { $group: { _id: { name: "$Location" } } }
+    ]);
+    const cityData = cityDatas.map(city => ({
+      name: city._id.name
+    }));
+
+    const existingCity = await City.find({ name: { $in: cityData.map(city => city.name) } });
+
+    const newBody = cityData.filter(city => !existingCity.some(existingCity => existingCity.name === city.name));
+
+    if (newBody.length > 0) {
+      await City.insertMany(newBody);
+    }
+
+    res.status(200).json({ status: 200, data: { City: newBody } });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+exports.getAllDisplayName = async (req, res) => {
+
+  try {
+    // Fetch all brands from the database
+    const bodyTypes = await DisplayName.find();
+
+    res.json({ data: bodyTypes });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+exports.getDisplayNamebyId = async (req, res) => {
+
+  try {
+    const DisplayNameId = req.params.id;
+
+    // Fetch the brand by its ID from the database
+    const bodyTypes = await DisplayName.findById(DisplayNameId);
+
+    if (!bodyTypes) {
+      return res.status(404).json({ message: 'bodyType not found' });
+    }
+
+    res.json({ data: bodyTypes });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server Error');
+  }
+};
+
+exports.getDisplayNameData = async (req, res) => {
+  try {
+    const cityDatas = await Car.aggregate([
+      { $group: { _id: { name: "$ModelName" } } }
+    ]);
+    const cityData = cityDatas.map(city => ({
+      name: city._id.name
+    }));
+
+    const existingCity = await DisplayName.find({ name: { $in: cityData.map(city => city.name) } });
+
+    const newBody = cityData.filter(city => !existingCity.some(existingCity => existingCity.name === city.name));
+
+    if (newBody.length > 0) {
+      await DisplayName.insertMany(newBody);
+    }
+
+    res.status(200).json({ status: 200, data: { DisplayName: newBody } });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');

@@ -19,7 +19,6 @@ const upload = multer({ storage: storage });
 const transmissionSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
   },
 
 });
