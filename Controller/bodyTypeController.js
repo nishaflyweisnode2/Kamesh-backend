@@ -224,10 +224,13 @@ exports.getDisplayNamebyId = async (req, res) => {
 exports.getDisplayNameData = async (req, res) => {
   try {
     const cityDatas = await Car.aggregate([
-      { $group: { _id: { name: "$ModelName" } } }
+      { $group: { _id: { name: "$ModelName", Brand_name: "$Brand_name",  car_images: "$car_images" } } }
+
     ]);
     const cityData = cityDatas.map(city => ({
-      name: city._id.name
+      name: city._id.name,
+      brandName: city._id.Brand_name,
+      carImages: city._id.car_images
     }));
 
     const existingCity = await DisplayName.find({ name: { $in: cityData.map(city => city.name) } });
@@ -242,5 +245,20 @@ exports.getDisplayNameData = async (req, res) => {
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
+  }
+};
+
+exports.displayNameSearch = async (req, res) => {
+  try {
+    const { brandName } = req.query;
+
+    if (!brandName) {
+      return res.status(400).send({ error: 'Brand name is required' });
+    }
+
+    const results = await DisplayName.find({ brandName: new RegExp(brandName, 'i') });
+    res.json(results);
+  } catch (error) {
+    res.status(500).send({ error: 'An error occurred while searching' });
   }
 };

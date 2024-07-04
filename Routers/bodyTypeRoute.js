@@ -1,6 +1,6 @@
 const express = require("express");
 const {
-    createbodyType, getbodyType, getbodyTypebyId, updatebodyTypebyId, deletebodyTypebyId, getBodyData, getCityData, getAllCity, getCitybyId, getAllDisplayName, getDisplayNamebyId, getDisplayNameData
+    createbodyType, getbodyType, getbodyTypebyId, updatebodyTypebyId, deletebodyTypebyId, getBodyData, getCityData, getAllCity, getCitybyId, getAllDisplayName, getDisplayNamebyId, getDisplayNameData, displayNameSearch
 } = require("../Controller/bodyTypeController");
 const router = express.Router();
 
@@ -16,5 +16,6 @@ router.route("/getCitybyId/:id").get(getCitybyId);
 router.route("/getAllDisplayName").get(getAllDisplayName);
 router.route("/getDisplayNamebyId/:id").get(getDisplayNamebyId);
 router.route("/getDisplayNameData").get(getDisplayNameData);
+router.route("/displayNameSearch").get(displayNameSearch);
 
 module.exports = router;

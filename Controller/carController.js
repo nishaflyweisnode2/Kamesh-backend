@@ -164,9 +164,9 @@ exports.search = async (req, res) => {
 
     let query = {};
     console.log(isTopModelCar)
-    if(isTopModelCar == 'true'){
+    if (isTopModelCar == 'true') {
       query = { isTopModelCar: true };
-    }else{
+    } else {
       query = {};
     }
     if (search) {
@@ -180,6 +180,7 @@ exports.search = async (req, res) => {
         { "ModelName": { $regex: search, $options: "i" } },
         { "Transmission": { $regex: search, $options: "i" } },
         { "Display_name": { $regex: search, $options: "i" } },
+        { "Location": { $regex: search, $options: "i" } },
       ];
     }
 
@@ -253,7 +254,10 @@ exports.allfilter = async (req, res, next) => {
       bodyType,
       page,
       limit,
-      nearByCities_price
+      nearByCities_price,
+      Location,
+      ModelName,
+      vehicleTransmission
     } = req.query;
 
     const filter = {};
@@ -280,6 +284,12 @@ exports.allfilter = async (req, res, next) => {
     }
     if (bodyType) {
       filter.bodyType = bodyType;
+    }
+    if (Location) {
+      filter.Location = Location;
+    }
+    if (ModelName) {
+      filter.ModelName = ModelName;
     }
     if (nearByCities_price) {
       const cityFilter = [nearByCities_price];
