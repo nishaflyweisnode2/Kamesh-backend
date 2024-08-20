@@ -1167,7 +1167,7 @@ const carSchema = new mongoose.Schema(
       default: false,
     },
     isTopModelCar: {
-      type: Boolean,
+      type: String,
       default: false,
     },
     goodThings: {

@@ -32,13 +32,15 @@ const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("cloudinary").v2;
 cloudinary.config({
-    cloud_name: "dtijhcmaa", api_key: "624644714628939", api_secret: "tU52wM1-XoaFD2NrHbPrkiVKZvY",
-});
+    cloud_name: 'dvwecihog',
+    api_key: '364881266278834',
+    api_secret: '5_okbyciVx-7qFz7oP31uOpuv7Q'
+  });
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: "images/image",
-        allowed_formats: ["jpg", "jpeg", "png", "PNG", "xlsx", "xls", "pdf", "PDF"],
+        allowed_formats: ["jpg", "jpeg", "png", "PNG", "xlsx", "xls", "pdf", "PDF", "jiff", "JIFF", "jfif", "JFIF", "mp4", "MP4", "webm", "WEBM"],
     },
 });
 const upload = multer({ storage: storage });
@@ -790,7 +792,7 @@ exports.allfilter = async (req, res, next) => {
             filter['nearByCities_price.city'] = { $in: cityFilter };
             console.log("cityFilter", cityFilter);
         }
-        
+
         // if (color) {
         //   filter.color_options = color;
         // }

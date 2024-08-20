@@ -29,15 +29,15 @@ const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("cloudinary").v2;
 cloudinary.config({
-  cloud_name: "dtijhcmaa",
-  api_key: "624644714628939",
-  api_secret: "tU52wM1-XoaFD2NrHbPrkiVKZvY",
+  cloud_name: 'dvwecihog',
+  api_key: '364881266278834',
+  api_secret: '5_okbyciVx-7qFz7oP31uOpuv7Q'
 });
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "images/image",
-    allowed_formats: ["jpg", "jpeg", "png", "PNG", "xlsx", "xls", "pdf", "PDF"],
+    allowed_formats: ["jpg", "jpeg", "png", "PNG", "xlsx", "xls", "pdf", "PDF", "jiff", "JIFF", "jfif", "JFIF", "mp4", "MP4", "webm", "WEBM"],
   },
 });
 const upload = multer({ storage: storage });
@@ -245,7 +245,7 @@ exports.allfilter = async (req, res, next) => {
       maxMileage,
       minYear,
       maxYear,
-      seatCapacity,
+      SeatingCapacity,
       color,
       carId,
       Brand_name,
@@ -257,7 +257,26 @@ exports.allfilter = async (req, res, next) => {
       nearByCities_price,
       Location,
       ModelName,
-      vehicleTransmission
+      vehicleTransmission,
+      Airbags,
+      Mileage,
+      NCAPRating,
+      Engine,
+      MaxPower,
+      MaxTorque,
+      color_options,
+      Sunroof,
+      ReverseCamera,
+      TouchscreenDisplay,
+      AlloyWheels,
+      MusicSystem,
+      RearACVents,
+      CentralLocking,
+      CruiseControl,
+      HillHoldControl,
+      FourWheelDrive,
+      VentilatedSeats,
+      WirelessCharging
     } = req.query;
 
     const filter = {};
@@ -276,9 +295,6 @@ exports.allfilter = async (req, res, next) => {
     if (minYear && maxYear) {
       filter.year = { $gte: parseInt(minYear), $lte: parseInt(maxYear) };
     }
-    if (seatCapacity) {
-      filter.SeatingCapacity = parseInt(seatCapacity);
-    }
     if (FuelType) {
       filter.FuelType = FuelType;
     }
@@ -290,6 +306,33 @@ exports.allfilter = async (req, res, next) => {
     }
     if (ModelName) {
       filter.ModelName = ModelName;
+    }
+    if (vehicleTransmission) {
+      filter.vehicleTransmission = vehicleTransmission;
+    }
+    if (Mileage) {
+      const mileageRanges = {
+        "Upto 10kmpl": { $lte: 10 },
+        "10kmpl-15kmpl": { $gte: 10, $lte: 15 },
+        "15kmpl-20kmpl": { $gte: 15, $lte: 20 },
+        "Above 20kmpl": { $gte: 20 },
+      };
+      const selectedRange = mileageRanges[Mileage];
+      if (selectedRange) {
+        filter.Mileage = selectedRange;
+      }
+    }
+    if (SeatingCapacity) {
+      const seatingCapacities = SeatingCapacity.split(',').map(Number);
+      filter.SeatingCapacity = { $in: seatingCapacities.map(capacity => new RegExp(`^${capacity}`)) };
+    }
+    if (Airbags) {
+      const seatingCapacities = Airbags.split(',').map(Number);
+      filter.Airbags = { $in: seatingCapacities.map(capacity => new RegExp(`^${capacity}`)) };
+    }
+    if (NCAPRating) {
+      const seatingCapacities = NCAPRating.split(',').map(Number);
+      filter.NCAPRating = { $in: seatingCapacities.map(capacity => new RegExp(`^${capacity}`)) };
     }
     if (nearByCities_price) {
       const cityFilter = [nearByCities_price];
@@ -317,6 +360,141 @@ exports.allfilter = async (req, res, next) => {
     if (Brand_name) {
       filter.Brand_name = Brand_name;
     }
+    if (Engine) {
+      const engineRanges = {
+        "Upto 800cc": { min: 0, max: 800 },
+        "800cc-1000cc": { min: 800, max: 1000 },
+        "1000cc-1200cc": { min: 1000, max: 1200 },
+        "1200cc-1500cc": { min: 1200, max: 1500 },
+        "1500cc-2000cc": { min: 1500, max: 2000 },
+        "2000cc-3000cc": { min: 2000, max: 3000 },
+        "3000cc-4000cc": { min: 3000, max: 4000 },
+        "Above 4000cc": { min: 4000, max: Infinity },
+      };
+      const selectedRange = engineRanges[Engine];
+      if (selectedRange) {
+        const engineRegex = /\d+ cc/;
+        const minEngineCapacity = selectedRange.min;
+        const maxEngineCapacity = selectedRange.max;
+
+        filter['Engine'] = {
+          $regex: engineRegex,
+          $options: 'i'
+        };
+
+        filter.$expr = {
+          $and: [
+            { $gte: [{ $toInt: { $substr: ["$Engine", 0, { $indexOfBytes: ["$Engine", " cc"] }] } }, minEngineCapacity] },
+            { $lte: [{ $toInt: { $substr: ["$Engine", 0, { $indexOfBytes: ["$Engine", " cc"] }] } }, maxEngineCapacity] }
+          ]
+        };
+      }
+    }
+    if (MaxPower) {
+      const powerRanges = {
+        "Upto 70 bhp": { min: 0, max: 70 },
+        "70 bhp-100 bhp": { min: 70, max: 100 },
+        "100 bhp-140 bhp": { min: 100, max: 140 },
+        "140 bhp-200 bhp": { min: 140, max: 200 },
+        "200 bhp-350 bhp": { min: 200, max: 350 },
+        "Above 350 bhp": { min: 350, max: Infinity },
+      };
+      const selectedRange = powerRanges[MaxPower];
+      if (selectedRange) {
+        const powerRegex = /\d+ bhp/;
+        const minPower = selectedRange.min;
+        const maxPower = selectedRange.max;
+
+        filter['MaxPower'] = {
+          $regex: powerRegex,
+          $options: 'i'
+        };
+
+        filter.$expr = {
+          $and: [
+            { $gte: [{ $toInt: { $substr: ["$MaxPower", 0, { $indexOfBytes: ["$MaxPower", " bhp"] }] } }, minPower] },
+            { $lte: [{ $toInt: { $substr: ["$MaxPower", 0, { $indexOfBytes: ["$MaxPower", " bhp"] }] } }, maxPower] }
+          ]
+        };
+      }
+    }
+    if (MaxTorque) {
+      const torqueRanges = {
+        "Upto 90 Nm": { min: 0, max: 90 },
+        "90 Nm-140 Nm": { min: 90, max: 140 },
+        "140 Nm-200 Nm": { min: 140, max: 200 },
+        "200 Nm-350 Nm": { min: 200, max: 350 },
+        "Above 350 Nm": { min: 350, max: Infinity },
+      };
+      const selectedRange = torqueRanges[MaxTorque];
+      if (selectedRange) {
+        const torqueRegex = /\d+ Nm/;
+        const minTorque = selectedRange.min;
+        const maxTorque = selectedRange.max;
+
+        filter['MaxTorque'] = {
+          $regex: torqueRegex,
+          $options: 'i'
+        };
+
+        filter.$expr = {
+          $and: [
+            { $gte: [{ $toInt: { $substr: ["$MaxTorque", 0, { $indexOfBytes: ["$MaxTorque", " Nm"] }] } }, minTorque] },
+            { $lte: [{ $toInt: { $substr: ["$MaxTorque", 0, { $indexOfBytes: ["$MaxTorque", " Nm"] }] } }, maxTorque] }
+          ]
+        };
+      }
+    }
+    if (color_options) {
+      const colorMap = {
+        White: ["Platinum White Pearl", "White"],
+        Silver: ["Lunar Silver Metallic", "Silver"],
+        Grey: ["Meteoroid Grey Metallic", "Grey"],
+        Red: ["Radiant Red Metallic", "Red"],
+        Blue: ["Blue"],
+        Green: ["Green"],
+        Black: ["Black"],
+        Yellow: ["Yellow"],
+        Brown: ["Golden Brown Metallic", "Brown"],
+        Orange: ["Orange"],
+        Beige: ["Beige"],
+        Gold: ["Gold"],
+        Bronze: ["Bronze"],
+        Copper: ["Copper"]
+      };
+
+      const selectedColors = color_options.split(',').map(c => c.trim());
+      const matchedColors = [];
+
+      selectedColors.forEach(color => {
+        if (colorMap[color]) {
+          matchedColors.push(...colorMap[color]);
+        }
+      });
+
+      filter.color_options = { $in: matchedColors };
+    }
+    const additionalFeatures = [
+      'Sunroof',
+      'ReverseCamera',
+      'Touchscreen',
+      'AlloyWheels',
+      'SizeIntegratedMusicSystem',
+      'RearACVents',
+      'CentralLocking',
+      'CruiseControl',
+      'HillHoldControl',
+      'FourWheelDrive',
+      'VentilatedSeats',
+      'WirelessCharging'
+    ];
+
+    additionalFeatures.forEach(feature => {
+      if (req.query[feature]) {
+        filter[feature] = req.query[feature].toLowerCase() === 'true';
+      }
+    });
+
     const sortOptions = {};
     if (sort === "lowToHigh") {
       sortOptions.ExShowroomPrice = 1;

@@ -1,4 +1,4 @@
-const express = require('express'); 
+const express = require('express');
 const VideoBanner = require('../Controller/videoController')
 const videoPattern = "[^\\s]+(.*?)\\.(mp4|avi|mov|flv|wmv)$";
 // const imagePattern = "[^\\s]+(.*?)\\.(jpg|jpeg|png|gif|JPG|JPEG|PNG|GIF)$";
@@ -6,9 +6,9 @@ const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("cloudinary").v2;
 cloudinary.config({
-  cloud_name: "dtijhcmaa",
-  api_key: "624644714628939",
-  api_secret: "tU52wM1-XoaFD2NrHbPrkiVKZvY",
+  cloud_name: 'dvwecihog',
+  api_key: '364881266278834',
+  api_secret: '5_okbyciVx-7qFz7oP31uOpuv7Q'
 });
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
@@ -21,9 +21,9 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage: storage });
 const router = express();
-router.post('/add', VideoBanner.AddVideoBanner );
+router.post('/add', VideoBanner.AddVideoBanner);
 router.get('/', VideoBanner.getVideoBanner);
-router.put('/update/:id',upload.single("video"), VideoBanner.updateById);
+router.put('/update/:id', upload.single("video"), VideoBanner.updateById);
 router.delete('/delete/:id', VideoBanner.DeleteVideoBanner);
 
 
